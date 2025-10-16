@@ -1,127 +1,68 @@
+# Meal Planner
 
-# 🥗 Meal Planner
-
-**Authors:** Matthieu Sirier – Yohann Pouillieute – Valentin Dubrulle  
+**Authors:** Matthieu Sirier, Yohann Pouillieute, Valentin Dubrulle  
 **Supervisor:** Zsolt Szabo-Resch  
-**Project type:** School Project – Web Application  
-
-# :salad: Meal Planner
-
-**Authors:** Matthieu Sirier – Yohann Pouillieute – Valentin Dubrulle  
-**Supervisor:** Zsolt Szabo-Resch  
-**Project type:** School Project – Web Application  
-**Institution:** EFREI Paris  
-
----
-
-## :book: Project Overview
-
-**Meal Planner** is a web application designed to help users **save recipes**, **organize weekly meal plans**, and **manage ingredients** efficiently.  
-It was developed as part of a class project to demonstrate database design, backend logic, and user interaction through a simple interface.
-
----
-
-## :jigsaw: Main Features
-
-### :bust_in_silhouette: Authentication (Account)
-- User registration and login  
-- Each account includes:
-  - ID, email, password, display name  
-- Users are linked to recipes through the **Connects** table  
-
-### :fork_knife_plate: Recipes
-- Each recipe includes:
-  - Title, description, prep time, cook time, servings, difficulty, steps, illustration  
-- Linked to ingredients through the **Needs** connector table  
-
-### :carrot: Ingredients
-- Contain:
-  - Name, calories, nutritive properties (Fat, Carbs, Fibers, Protein, Salt, Sugar)  
-- Connected to shops through the **Sells** connector table  
-
-### :convenience_store: Shops
-- Contain:
-  - Name, type, address, opening times, about info, website, phone number  
-- Linked to ingredients via **Sells**
-
----
-﻿
-```
-# 🥗 Meal Planner
-
-**Authors:** Matthieu Sirier – Yohann Pouillieute – Valentin Dubrulle  
-**Supervisor:** Zsolt Szabo-Resch  
-**Project type:** School Project – Web Application  
 **Institution:** ESSCA x EFREI Paris  
+**Project Type:** Academic Web Application Project  
 
 ---
 
-## 📖 Project Overview
+## Overview
 
-**Meal Planner** is a web application designed to help users **save recipes**, **organize weekly meal plans**, and **manage ingredients** efficiently.  
-It was developed as part of a class project to demonstrate database design, backend logic, and user interaction through a simple interface.
-
----
-
-## 🧩 Main Features
-
-### 👤 Authentication (Account)
-- User registration and login  
-- Each account includes:
-  - ID, email, password, display name  
-- Users are linked to recipes through the **Connects** table  
-
-### 🍽️ Recipes
-- Each recipe includes:
-  - Title, description, prep time, cook time, servings, difficulty, steps, illustration  
-- Linked to ingredients through the **Needs** connector table  
-
-### 🥕 Ingredients
-- Contain:
-  - Name, calories, nutritive properties (Fat, Carbs, Fibers, Protein, Salt, Sugar)  
-- Connected to shops through the **Sells** connector table  
-
-### 🏪 Shops
-- Contain:
-  - Name, type, address, opening times, about info, website, phone number  
-- Linked to ingredients via **Sells**
+Meal Planner is a web application developed as part of a school project.  
+Its purpose is to help users store their recipes, organize them into weekly meal plans, and manage the relationships between ingredients, recipes, and shops.  
+The project focuses on database modeling, entity relationships, and a simple interface for demonstration purposes.
 
 ---
 
-## 🗄️ Database Structure
+## Features
 
-| Entity      | Description |
-|--------------|-------------|
-| **Account**  | Authentication and user profile |
-| **Recipes**  | Recipes with all cooking details |
-| **Ingredients** | Nutritional info and links to shops |
-| **Shop**     | Shop details and ingredient availability |
-| **Connects** | Link between Accounts and Recipes (meal date/type) |
-| **Needs**    | Link between Recipes and Ingredients (quantity/unit) |
-| **Sells**    | Link between Shops and Ingredients (stock/unit) |
+### Authentication
+- User registration and login system.  
+- Each account includes an ID, email, password, and display name.  
+- Accounts are linked to recipes through the **Connects** relationship.
 
----
+### Recipes
+- Each recipe includes a title, description, preparation time, cooking time, servings, difficulty level, steps, and an illustration.  
+- Recipes are connected to ingredients through the **Needs** relationship.
 
-## 🧠 Future Improvements
-Planned features for later versions:
-- 🛒 Dynamic shopping list  
-- 🌱 Dietary filters (vegan, gluten-free, etc.)  
-- ⭐ Recipe ratings and user comments  
-- 📱 Responsive and more interactive UI  
+### Ingredients
+- Each ingredient includes a name, calorie value, and nutritional properties (fat, carbohydrates, fiber, protein, salt, sugar).  
+
+### Shops
+- Ingredients are connected to shops through the **Sells** relationship.
+- Each shop includes a name, type, address, opening hours, description, website, and phone number.  
+- Shops are linked to ingredients via **Sells**.
 
 ---
 
-## 🧰 Technologies
-- **Languages:** SQL, HTML/CSS, JavaScript (to be extended)
-- **Database:** Relational model designed with multiple connector tables
-- **Tools:** Visual Paradigm, SQL editor, Git/GitHub
+## Database Structure
+
+| Entity        | Description |
+|----------------|-------------|
+| **Account**    | Stores authentication and user profile information |
+| **Recipes**    | Contains detailed recipe information |
+| **Ingredients**| Includes ingredient data and nutritional properties |
+| **Shop**       | Represents stores where ingredients are available |
+| **Connects**   | Links Accounts and Recipes (meal type and date) |
+| **Needs**      | Links Recipes and Ingredients (quantity and unit) |
+| **Sells**      | Links Shops and Ingredients (stock and unit) |
+
 
 ---
 
-## 📁 Repository Structure
+## Technologies Used
+
+- **Languages:** SQL, HTML, CSS, JavaScript (to be extended)  
+- **Database:** Relational database model using connector tables  
+- **Tools:** Visual Paradigm, SQL editor, Git, GitHub  
+
+---
+
+## Repository Structure
 
 Meal_Planner/
-├── .idea/ # IntelliJ project files
+├── .idea/ # Project configuration files
 ├── ProjectFiles/ # SQL scripts and database exports
-├── ProjectPlan/ # Project report and diagram (ignored by Git)
-├── README.md # This file
+├── ProjectPlan/ # Project report and diagrams (ignored by Git)
+├── README.md # Project documentation
