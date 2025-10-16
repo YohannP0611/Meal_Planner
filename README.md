@@ -62,7 +62,11 @@ The project focuses on database modeling, entity relationships, and a simple int
 ## Repository Structure
 
 Meal_Planner/
+
 ├── .idea/ # Project configuration files
+
 ├── ProjectFiles/ # SQL scripts and database exports
+
 ├── ProjectPlan/ # Project report and diagrams (ignored by Git)
+
 ├── README.md # Project documentation
