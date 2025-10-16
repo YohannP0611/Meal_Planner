@@ -67,6 +67,4 @@ Meal_Planner/
 
 ├── ProjectFiles/ # SQL scripts and database exports
 
-├── ProjectPlan/ # Project report and diagrams (ignored by Git)
-
 ├── README.md # Project documentation
