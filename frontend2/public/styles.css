@@ -1,0 +1,58 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#HeaderContainer{
+  display: flex;
+  align-items: center;
+  background-color: #cbc9c8;
+  margin-bottom: 4%;
+}
+#HeaderContainer nav{
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 5%;
+  font-size: large;
+}
+
+#BarLogo{
+    width: 8%;
+    height: auto;
+}
+#TopLeftProject{
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 10px;
+    color: rgb(22, 98, 13);
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+nav {
+  padding: 20px;
+}
+
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+.home HelloWorld{
+  font-size: xxx-large;
+}
