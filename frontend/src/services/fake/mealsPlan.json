@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "recipeId": 1,
+    "accountId": 1,
+    "dateMeal": "2025-11-03",
+    "mealType": "dinner"
+  },
+  {
+    "id": 2,
+    "recipeId": 2,
+    "accountId": 1,
+    "dateMeal": "2025-11-04",
+    "mealType": "lunch"
+  }
+]

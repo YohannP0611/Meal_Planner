@@ -27,6 +27,26 @@ const routes = [
     component: function () {
       return import(/* webpackChunkName: "about" */ '../views/Meals.vue')
     }
+  },
+  {
+    path: '/recipes',
+    name: 'recipes',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: function () {
+      return import(/* webpackChunkName: "about" */ '../views/Recipes.vue')
+    }
+  },
+  {
+    path: '/ingredients',
+    name: 'ingredients',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: function () {
+      return import(/* webpackChunkName: "about" */ '../views/Ingredients.vue')
+    }
   }
 ]
 
