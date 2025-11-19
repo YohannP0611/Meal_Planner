@@ -1,26 +1,26 @@
 [
   {
-    "id": 1,
-    "name": "Tomato",
-    "properties": "Fresh",
-    "calories": 18,
-    "fat": 0.2,
-    "carbs": 3.9,
-    "fibers": 1.2,
-    "protein": 0.9,
-    "salt": 0.01,
-    "sugar": 2.6
+    "IDIngredients": 1,
+    "Name": "Tomato",
+    "Properties": "Fresh",
+    "Calories": 18,
+    "Fat": 0.2,
+    "Carbs": 3.9,
+    "Fibers": 1.2,
+    "Protein": 0.9,
+    "Salt": 0.01,
+    "Sugar": 2.6
   },
   {
-    "id": 2,    
-    "name": "Pasta",
-    "properties": "Dry",
-    "calories": 350,
-    "fat": 1.5,
-    "carbs": 72,
-    "fibers": 2.5,
-    "protein": 12,
-    "salt": 0,
-    "sugar": 3.2
+    "IDIngredients": 2,    
+    "Name": "Pasta",
+    "Properties": "Dry",
+    "Calories": 350,
+    "Fat": 1.5,
+    "Carbs": 72,
+    "Fibers": 2.5,
+    "Protein": 12,
+    "Salt": 0,
+    "Sugar": 3.2
   }
 ]
