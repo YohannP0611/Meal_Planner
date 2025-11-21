@@ -1,5 +1,15 @@
 <script setup>
 import Logo from './assets/MPlogo.png'
+import { ref, provide } from 'vue'
+import { getAllIngredients, getAllRecipes, getAllMealPlans } from '@/services/dataService'
+
+const ingredients = ref(getAllIngredients())
+const recipes = ref(getAllRecipes())
+const mealPlans = ref(getAllMealPlans())
+
+provide('ingredients', ingredients)
+provide('recipes', recipes)
+provide('mealPlans', mealPlans)
 </script>
 
 <template>
@@ -12,7 +22,9 @@ import Logo from './assets/MPlogo.png'
     <nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <router-link to="/meals">Meals</router-link>
+      <router-link to="/meals">Meals</router-link> |
+      <router-link to="/ingredients">Ingredients</router-link> |
+      <router-link to="/recipes">Recipes</router-link>
     </nav>
   </div>
   <router-view/>

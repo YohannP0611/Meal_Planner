@@ -1,0 +1,31 @@
+[
+  {
+    "IDRecipes": 1,
+    "Title": "Pasta al Pomodoro",
+    "Description": "Simple Italian pasta with tomato sauce.",
+    "PrepTime": "00:10:00",
+    "CookTime": "00:15:00",
+    "Servings": 2,
+    "Difficulty": "easy",
+    "Steps": "1. Boil pasta.\n2. Make tomato sauce.\n3. Mix and serve.",
+    "Illustration": "Pasta Al Pomodoro.jpg",
+    "Needs": [
+      { "IDIngredients": 1, "Quantity": 2, "Unit": "pcs" },
+      { "IDIngredients": 2, "Quantity": 180, "Unit": "g" }
+    ]
+  },
+  {
+    "IDRecipes": 2,
+    "Title": "Green Salad",
+    "Description": "Fresh salad with lettuce and tomatoes.",
+    "PrepTime": "00:05:00",
+    "CookTime": "00:00:00",
+    "Servings": 1,
+    "Difficulty": "easy",
+    "Steps": "1. Wash vegetables.\n2. Mix everything.\n3. Add dressing.",
+    "Illustration": "Green Salad.jpg",
+    "Needs": [
+      { "IDIngredients": 1, "Quantity": 1, "Unit": "pcs" }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "IDRecipes": 1,
+    "IDAcc": 1,
+    "DateMeal": "2025-11-03",
+    "MealType": "dinner"
+  },
+  {
+    "IDRecipes": 2,
+    "IDAcc": 1,
+    "DateMeal": "2025-11-04",
+    "MealType": "lunch"
+  }
+]
