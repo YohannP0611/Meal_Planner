@@ -4,7 +4,7 @@ const meals = inject('mealPlans')
 </script>
 
 <template>
-  <div class="meal">
+  <div class="about">
     <h1>This is the meal page !</h1>
   </div>
   <ul>
