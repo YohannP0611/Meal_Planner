@@ -177,12 +177,8 @@ const deleteIngredient = (id) => {
       </div>
     </div>
   </div>
-</template> -->
-<script setup>
-import IngredientsList from "@/components/IngredientsList.vue";
-import IngredientForm from "@/components/IngredientForm.vue";
-</script>
-
+</template>
+<!--
 <template>
   <div>
     <h1>Ingredients Manager</h1>
@@ -190,3 +186,4 @@ import IngredientForm from "@/components/IngredientForm.vue";
     <IngredientsList />
   </div>
 </template>
+-->
