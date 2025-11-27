@@ -33,7 +33,7 @@ const form = ref({
   Carbs: 0,
   Protein: 0
 })
-
+const editingId = ref(null)
 // open popup
 const openForm = () => {
   form.value = {
@@ -42,6 +42,18 @@ const openForm = () => {
     Carbs: 0,
     Protein: 0
   }
+  editingId.value = null
+  showForm.value = true
+}
+
+const openEditForm = (ingredient) => {
+  form.value = {
+    Name: ingredient.Name,
+    Calories: ingredient.Calories,
+    Carbs: ingredient.Carbs,
+    Protein: ingredient.Protein
+  }
+  editingId.value = ingredient.IDIngredients   // 👈 edit mode for this ID
   showForm.value = true
 }
 
@@ -50,26 +62,47 @@ const closeForm = () => {
   showForm.value = false
 }
 
-// submit form
 const submitForm = () => {
   if (!form.value.Name) {
     alert('Name is required')
     return
   }
 
-  const newIngredient = {
-    IDIngredients: Date.now(),  // simple fake ID
-    ...form.value
+  if (editingId.value === null) {
+    // CREATE
+    const newIngredient = {
+      IDIngredients: Date.now(),  // simple fake ID
+      ...form.value
+    }
+
+    if (Array.isArray(ingredients)) {
+      ingredients.push(newIngredient)
+    } else if (Array.isArray(ingredients?.value)) {
+      ingredients.value.push(newIngredient)
+    }
+  } else {
+    // UPDATE
+    if (Array.isArray(ingredients)) {
+      const ing = ingredients.find(i => i.IDIngredients === editingId.value)
+      if (ing) Object.assign(ing, form.value)
+    } else if (Array.isArray(ingredients?.value)) {
+      const ing = ingredients.value.find(i => i.IDIngredients === editingId.value)
+      if (ing) Object.assign(ing, form.value)
+    }
   }
 
-  // ingredients can be a ref or a plain array depending on how parent provided it
+  showForm.value = false
+  editingId.value = null
+}
+const deleteIngredient = (id) => {
+  if (!confirm("Delete this ingredient?")) return
+
   if (Array.isArray(ingredients)) {
-    ingredients.push(newIngredient)
-  } else if (Array.isArray(ingredients?.value)) {
-    ingredients.value.push(newIngredient)
+    const index = ingredients.findIndex(i => i.IDIngredients === id)
+    if (index !== -1) ingredients.splice(index, 1)
+  } else {
+    ingredients.value = ingredients.value.filter(i => i.IDIngredients !== id)
   }
-
-  closeForm()
 }
 </script>
 
@@ -81,7 +114,7 @@ const submitForm = () => {
     </div>
     
     <!-- POPUP FORM -->
-    <div v-if="showForm" class="modal-backdrop">
+    <div v-if="showForm" class="card">
       <div class="modal">
         <h2>Add ingredient</h2>
 
@@ -137,6 +170,10 @@ const submitForm = () => {
         <p><strong>Calories:</strong> {{ i.Calories }} kcal</p>
         <p><strong>Carbs:</strong> {{ i.Carbs }} g</p>
         <p><strong>Protein:</strong> {{ i.Protein }} g</p>
+        <div class="CRUD">
+          <button @click="deleteIngredient(i.IDIngredients)">🗑️</button>
+          <button @click="openEditForm(i)">✏️</button>
+        </div>
       </div>
     </div>
   </div>

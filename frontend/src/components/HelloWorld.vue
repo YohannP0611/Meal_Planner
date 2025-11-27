@@ -21,6 +21,7 @@ export default {
 <style scoped>
 .hello {
   text-align: center;
+  margin-bottom: 40px;
 }
 h1 {
   font-size: xxx-large;

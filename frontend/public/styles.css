@@ -115,3 +115,26 @@ button.active {
   object-fit: cover;
   border-radius: 8px;
 }
+
+.ImgPreview {
+  width: 100%;
+  max-width: 300px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.modal {
+  text-align: center;
+}
+
+.CRUD {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.HomeLink {
+  text-decoration: none;
+  color: inherit;
+}
