@@ -56,3 +56,85 @@ nav a.router-link-exact-active {
 .home HelloWorld{
   font-size: xxx-large;
 }
+
+.about {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+}
+
+.card {
+  /*border: solid rgb(88, 219, 95) 5px ;
+  border-radius: 10px;*/
+  background-color: rgba(255, 153, 0, 0.038);
+  border-radius: 10px;
+  white-space: nowrap;
+  padding: 10px;
+  margin: 1%;
+  transition: 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header button {
+  border: none;
+  background: none;
+  font-weight: 500;
+  font-size: large;
+}
+
+button.active {
+  color: red;
+}
+
+.card-header h3{
+  text-align: center;
+  margin: 0;
+  flex: 1;
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.ImgPreview {
+  width: 100%;
+  max-width: 300px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.modal {
+  text-align: center;
+}
+
+.CRUD {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.HomeLink {
+  text-decoration: none;
+  color: inherit;
+}
