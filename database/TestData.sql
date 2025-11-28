@@ -29,20 +29,20 @@ VALUES
 -- ============ INGREDIENTS ============
 
 INSERT INTO `Ingredients`
-  (IDIngredients, Name, Properties, Calories, Fat, Carbs, Fibers, Protein, Salt, Sugar)
+  (IDIngredients, Name, Properties, Calories, Fat, Carbs, Fibers, Protein, Salt, Sugar, IngredientPicture)
 VALUES
-(1,  'Tomato',         'Fresh',   18,  0.20, 3.90, 1.20, 0.90, 0.01, 2.60),
-(2,  'Pasta',          'Dry',    350,  1.50,72.00, 2.50,12.00, 0.00, 3.20),
-(3,  'Olive Oil',      'Extra',  884,100.00, 0.00, 0.00, 0.00, 0.00, 0.00),
-(4,  'Garlic',         'Fresh',  149,  0.50,33.00, 2.10, 6.40, 0.02, 1.00),
-(5,  'Onion',          'Fresh',   40,  0.10, 9.30, 1.70, 1.10, 0.00, 4.20),
-(6,  'Chicken Breast', 'Lean',  165,  3.60, 0.00, 0.00,31.00, 0.10, 0.00),
-(7,  'Rice',           'White', 130,  0.30,28.00, 0.40, 2.70, 0.00, 0.10),
-(8,  'Lettuce',        'Fresh',  15,  0.20, 2.90, 1.30, 1.40, 0.02, 0.80),
-(9,  'Cucumber',       'Fresh',  16,  0.10, 3.60, 0.50, 0.70, 0.02, 1.70),
-(10, 'Egg',            'Free-range',155,11.00, 1.10, 0.00,13.00, 0.12, 1.10),
-(11, 'Bread',          'Wholegrain',250,3.50,45.00, 5.00, 9.00, 0.80, 5.00),
-(12, 'Cheese',         'Hard',  402,33.00, 1.30, 0.00,25.00, 1.80, 0.50);
+(1,  'Tomato',         'Fresh',   18,  0.20, 3.90, 1.20, 0.90, 0.01, 2.60, 'Tomato.jpg'),
+(2,  'Pasta',          'Dry',    350,  1.50,72.00, 2.50,12.00, 0.00, 3.20, 'Pasta.jpg'),
+(3,  'Olive Oil',      'Extra',  884,100.00, 0.00, 0.00, 0.00, 0.00, 0.00, 'Olive Oil.jpg'),
+(4,  'Garlic',         'Fresh',  149,  0.50,33.00, 2.10, 6.40, 0.02, 1.00, 'Garlic.jpg'),
+(5,  'Onion',          'Fresh',   40,  0.10, 9.30, 1.70, 1.10, 0.00, 4.20, 'Onion.jpg'),
+(6,  'Chicken Breast', 'Lean',  165,  3.60, 0.00, 0.00,31.00, 0.10, 0.00, 'Chicken Breast.jpg'),
+(7,  'Rice',           'White', 130,  0.30,28.00, 0.40, 2.70, 0.00, 0.10, 'Rice.jpg'),
+(8,  'Lettuce',        'Fresh',  15,  0.20, 2.90, 1.30, 1.40, 0.02, 0.80, 'Lettuce.jpg'),
+(9,  'Cucumber',       'Fresh',  16,  0.10, 3.60, 0.50, 0.70, 0.02, 1.70, 'Cucumber.jpg'),
+(10, 'Egg',            'Free-range',155,11.00, 1.10, 0.00,13.00, 0.12, 1.10, 'Egg.jpg'),
+(11, 'Bread',          'Wholegrain',250,3.50,45.00, 5.00, 9.00, 0.80, 5.00, 'Bread.jpg'),
+(12, 'Cheese',         'Hard',  402,33.00, 1.30, 0.00,25.00, 1.80, 0.50, 'Cheese.jpg');
 
 -- ============ RECIPES ============
 
@@ -53,31 +53,31 @@ VALUES
    'Simple Italian pasta with tomato sauce.',
    '00:10:00', '00:15:00', 2, 'easy',
    '1. Boil pasta until al dente.\n2. Sauté garlic and onion in olive oil.\n3. Add tomatoes and simmer.\n4. Mix pasta with sauce and serve.',
-   'pasta_pomodoro.jpg'),
+   'Pasta Al Pomodoro.jpg'),
 
 (2, 'Chicken & Rice Bowl',
    'Balanced bowl with grilled chicken, rice and veggies.',
    '00:15:00', '00:20:00', 2, 'medium',
    '1. Cook rice.\n2. Season and grill chicken.\n3. Sauté vegetables.\n4. Assemble bowl and serve.',
-   'chicken_rice_bowl.jpg'),
+   'Chicken Rice & Bowl.jpg'),
 
 (3, 'Green Salad',
    'Fresh salad with lettuce, tomato and cucumber.',
    '00:05:00', '00:00:00', 1, 'easy',
    '1. Wash and chop vegetables.\n2. Mix in a bowl.\n3. Add dressing and toss.',
-   'green_salad.jpg'),
+   'Green Salad.jpg'),
 
 (4, 'Cheese Omelette',
    'Fluffy cheese omelette for breakfast.',
    '00:05:00', '00:05:00', 1, 'easy',
    '1. Beat eggs with salt.\n2. Pour into hot pan.\n3. Add cheese.\n4. Fold and serve.',
-   'cheese_omelette.jpg'),
+   'Cheese Omelette.jpg'),
 
 (5, 'Garlic Bread',
    'Toasted bread with garlic and olive oil.',
    '00:05:00', '00:10:00', 3, 'easy',
    '1. Mix olive oil with minced garlic.\n2. Spread on bread slices.\n3. Toast until golden.',
-   'garlic_bread.jpg');
+   'Garlic Bread.jpg');
 
 -- ============ ACCOUNTS ============
 

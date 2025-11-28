@@ -69,7 +69,7 @@ const goToShoppingList = () => {
         <h2 class="home-section-title">Tendances</h2>
         <div class="thumb-row">
           <div v-for="r in trending" :key="'trend-' + r.IDRecipes" class="thumb-card">
-            <img :src="getImage(r.Title)" :alt="r.Title" />
+            <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
             <p class="thumb-caption">{{ r.Title }}</p>
           </div>
         </div>
@@ -77,7 +77,7 @@ const goToShoppingList = () => {
         <h2 class="home-section-title second">Meal liked</h2>
         <div class="thumb-row">
           <div v-for="r in liked" :key="'liked-' + r.IDRecipes" class="thumb-card">
-            <img :src="getImage(r.Title)" :alt="r.Title" />
+            <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
             <p class="thumb-caption">{{ r.Title }}</p>
           </div>
         </div>
@@ -99,16 +99,12 @@ const goToShoppingList = () => {
 
         <div v-if="nextPlannedMeal" class="next-meal-card">
           <p>Lunch for tomorrow: {{ nextPlannedMeal.Title }}</p>
-          <img :src="getImage(nextPlannedMeal.Title)" :alt="nextPlannedMeal.Title" />
+          <img :src="getRecipeImageUrl(nextPlannedMeal)" :alt="nextPlannedMeal.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
+          <p><strong>Preparation time:</strong> {{ nextPlannedMeal.PrepTime }}</p>
+          <p><strong>Cooking time:</strong> {{ nextPlannedMeal.CookTime }}</p>
+          <p><strong>Difficulty:</strong> {{ nextPlannedMeal.Difficulty }}</p>
           <a href="" class="recipe-link" @click.prevent="goToRecipe">Link to the recipe</a>
         </div>
-        <!-- use illustration URL from backend /uploads, fallback to logo on error -->
-        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
-        <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
-        <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
-        <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>
-        </router-link>
-      </div>
 
         <button class="shopping-btn" @click="goToShoppingList">
              Prepare your shopping list

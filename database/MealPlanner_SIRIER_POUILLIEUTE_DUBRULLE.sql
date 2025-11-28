@@ -44,6 +44,7 @@ CREATE TABLE `Ingredients` (
   `Protein`       DECIMAL(15,2),
   `Salt`          DECIMAL(15,2),
   `Sugar`         DECIMAL(15,2),
+  `IngredientPicture` VARCHAR(255),
   PRIMARY KEY (`IDIngredients`),
   UNIQUE KEY `uq_ingredients_name` (`Name`),
   CHECK (`Calories` IS NULL OR `Calories` >= 0),
@@ -64,7 +65,7 @@ CREATE TABLE `Recipes` (
   `Servings`    INT          NOT NULL,
   `Difficulty`  ENUM('easy','medium','hard') NOT NULL DEFAULT 'easy',
   `Steps`       TEXT         NOT NULL,
-  `Illustration` VARCHAR(50),
+  `Illustration` VARCHAR(255),
   PRIMARY KEY (`IDRecipes`),
   CHECK (`Servings` > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

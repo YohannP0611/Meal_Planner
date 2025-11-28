@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
 
 const recipes = ref([])
@@ -22,14 +22,6 @@ const loadRecipes = async () => {
     })
   } catch (err) {
     console.error('Failed to load recipes', err)
-import { inject, ref, computed } from 'vue'
-
-const recipes = inject('recipes', ref([]))
-const getImage = (title) => {
-  try {
-    return require(`@/assets/${title}.jpg`)
-  } catch (e) {
-    return require('@/assets/MPlogo.png')
   }
 }
 
@@ -39,14 +31,26 @@ onMounted(() => loadRecipes())
 
 // toggle like for ONE recipe
 const likeToggle = (item) => {
-  if (!item.passed) {
-    item.liked = !item.liked
+  if (!item.liked) {
+    // activate like and deactivate pass
+    item.liked = true
+    item.passed = false
+  } else {
+    // deactivate like
+    item.liked = false
   }
 } 
 
 // toggle pass for ONE recipe
 const passToggle = (item) => {
-  item.passed = !item.passed
+  if (!item.passed) {
+    // activate pass and deactivate like
+    item.passed = true
+    item.liked = false
+  } else {
+    // deactivate pass
+    item.passed = false
+  }
 }
 
 /* ---------- FILTRES / TRI (wireframe) ---------- */
@@ -72,28 +76,6 @@ const sortedRecipes = computed(() => {
   return arr
 })
 
-/* ---------- FILTRES / TRI (wireframe) ---------- */
-
-const sortBy = ref('time') // 'time' | 'liked' | 'cost'
-
-const sortedRecipes = computed(() => {
-  const list = Array.isArray(recipes) ? recipes : recipes.value
-  const arr = [...list]
-
-  if (sortBy.value === 'liked') {
-    return arr.sort((a, b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0))
-  }
-
-  if (sortBy.value === 'time') {
-    // tri grossier : concat PrepTime+CookTime (OK pour la démo)
-    return arr.sort((a, b) =>
-      (a.PrepTime + a.CookTime).localeCompare(b.PrepTime + b.CookTime)
-    )
-  }
-
-  // si un jour vous avez un champ "cost", on pourra trier dessus
-  return arr
-})
 
 /* Use RecipeForm component to handle create/edit */
 import RecipeForm from '@/components/RecipeForm.vue'
@@ -117,76 +99,12 @@ const closeForm = () => {
 }
 
 const onSaved = ({ action, recipe }) => {
-  const list = Array.isArray(recipes) ? recipes : recipes.value
   if (action === 'create') {
-    list.push(recipe)
+    recipes.value.push(recipe)
   } else if (action === 'update') {
-    const idx = list.findIndex(r => r.IDRecipes === recipe.IDRecipes)
-    if (idx !== -1) list.splice(idx, 1, recipe)
+    const idx = recipes.value.findIndex(r => r.IDRecipes === recipe.IDRecipes)
+    if (idx !== -1) recipes.value.splice(idx, 1, recipe)
   }
-  editingId.value = null
-}
-
-/* ---------- IMAGE HANDLING ---------- */
-
-const handleFiles = (files) => {
-  if (!files || !files.length) return
-  const file = files[0]
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
-  }
-  imagePreview.value = URL.createObjectURL(file)
-}
-
-const onFileChange = (e) => {
-  handleFiles(e.target.files)
-}
-
-const onDrop = (e) => {
-  e.preventDefault()
-  handleFiles(e.dataTransfer.files)
-}
-
-const onDragOver = (e) => {
-  e.preventDefault()
-}
-
-/* ---------- SUBMIT ---------- */
-
-const submitForm = () => {
-  if (!form.value.Title) {
-    alert('Title is required')
-    return
-  }
-
-  if (editingId.value === null) {
-    // CREATE
-    const newRecipe = {
-      IDRecipes: Date.now(),
-      ...form.value,
-      ImageUrl: imagePreview.value || null,
-      liked: false,
-      passed: false
-    }
-    if (Array.isArray(recipes)) {
-      recipes.push(newRecipe)
-    } else {
-      recipes.value.push(newRecipe)
-    }
-  } else {
-    // UPDATE
-    const list = Array.isArray(recipes) ? recipes : recipes.value
-    const rec = list.find(r => r.IDRecipes === editingId.value)
-    if (rec) {
-      rec.Title = form.value.Title
-      rec.CookTime = form.value.CookTime
-      rec.PrepTime = form.value.PrepTime
-      rec.Difficulty = form.value.Difficulty
-      rec.Illustration = form.value.Illustration
-      rec.ImageUrl = imagePreview.value || rec.ImageUrl || null
-    }
-  }
-
   closeForm()
 }
 
@@ -239,58 +157,7 @@ const deleteRecipe = async (id) => {
     </div>
 
     <!-- POPUP FORM -->
-    <div v-if="showForm" class="card">
-      <div class="modal">
-        <h2>{{ editingId === null ? 'Add recipe' : 'Edit recipe' }}</h2>
-
-        <form @submit.prevent="submitForm">
-          <div class="form-row">
-            <label>Title</label>
-            <input v-model="form.Title" required />
-          </div>
-
-          <!-- DRAG & DROP FIELD -->
-          <div
-            class="form-row dropzone"
-            @dragover="onDragOver"
-            @dragenter.prevent
-            @drop="onDrop"
-          >
-            <label>Image</label>
-            <div class="dropzone-inner">
-              <p>Drop an image here or choose a file</p>
-              <input type="file" accept="image/*" @change="onFileChange" />
-            </div>
-          </div>
-
-          <!-- Preview -->
-          <div v-if="imagePreview">
-            <label>Preview</label>
-            <img :src="imagePreview" class="ImgPreview" alt="Preview" />
-          </div>
-
-          <div class="form-row">
-            <label>Cooking time</label>
-            <input v-model="form.CookTime" type="time" />
-          </div>
-
-          <div class="form-row">
-            <label>Preparation time</label>
-            <input v-model="form.PrepTime" type="time" />
-          </div>
-
-          <div class="form-row">
-            <label>Difficulty</label>
-            <input v-model="form.Difficulty" />
-          </div>
-
-          <div class="actions">
-            <button type="submit">Save</button>
-            <button type="button" @click="closeForm">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <RecipeForm v-if="showForm" :initialRecipe="editingRecipe" @saved="onSaved" @close="closeForm" />
 
     <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
@@ -314,12 +181,6 @@ const deleteRecipe = async (id) => {
         </div>
         <!-- use illustration URL from backend /uploads, fallback to logo on error -->
         <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" style="display:block; margin:0 auto;" />
-       <img
-       :src="r.ImageUrl || getImage(r.Title)"
-       :alt="r.Title"
-       class="recipe-image"
-/>
-
 
         <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
