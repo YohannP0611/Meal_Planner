@@ -1,7 +1,8 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
 
-const recipes = inject('recipes', ref([]))
+const recipes = ref([])
 
 const getImage = (fileName) => {
   try {
@@ -11,138 +12,83 @@ const getImage = (fileName) => {
   }
 }
 
+// Construct full URL for recipe images from backend /uploads
+function getRecipeImageUrl(recipe) {
+  if (recipe.Illustration) {
+    return `http://localhost:3000/uploads/${recipe.Illustration}`;
+  }
+  // Fallback to logo placeholder
+  return require('@/assets/MPlogo.png');
+}
+
+const loadRecipes = async () => {
+  try {
+    recipes.value = await getRecipes()
+    console.log('Loaded recipes:', recipes.value)
+    recipes.value.forEach(r => {
+      console.log(`Recipe: ${r.Title}, Illustration: "${r.Illustration}", Type: ${typeof r.Illustration}`)
+    })
+  } catch (err) {
+    console.error('Failed to load recipes', err)
+  }
+}
+
+onMounted(() => loadRecipes())
+
+// toggle like for ONE recipe
 const likeToggle = (item) => {
-  item.liked = !item.liked
-}
+  if (!item.passed) {
+    item.liked = !item.liked
+  }
+} 
 
+// toggle pass for ONE recipe
 const passToggle = (item) => {
-  item.passed = !item.passed
+  if (!item.liked) {
+    item.passed = !item.passed
+  }
 }
 
-/* ---------- POPUP FORM STATE ---------- */
+/* Use RecipeForm component to handle create/edit */
+import RecipeForm from '@/components/RecipeForm.vue'
 
 const showForm = ref(false)
-
-const form = ref({
-  Title: '',
-  CookTime: '00:00:00',
-  PrepTime: '00:00:00',
-  Difficulty: 'normal',
-  Illustration: ''
-})
-
-const editingId = ref(null)
-
-// blob URL for dropped/selected image
-const imagePreview = ref(null)
-
-const resetForm = () => {
-  form.value = {
-    Title: '',
-    CookTime: '00:00:00',
-    PrepTime: '00:00:00',
-    Difficulty: 'normal',
-    Illustration: ''
-  }
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
-  }
-  imagePreview.value = null
-}
+const editingRecipe = ref(null)
 
 const openForm = () => {
-  resetForm()
-  editingId.value = null
+  editingRecipe.value = null
   showForm.value = true
 }
 
 const openEditForm = (recipe) => {
-  form.value = {
-    Title: recipe.Title,
-    CookTime: recipe.CookTime,
-    PrepTime: recipe.PrepTime,
-    Difficulty: recipe.Difficulty,
-    Illustration: recipe.Illustration || ''
-  }
-  editingId.value = recipe.IDRecipes
-  // si la recette a déjà une image, on la prévisualise
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
-  }
-  imagePreview.value = recipe.ImageUrl || null
+  editingRecipe.value = recipe
   showForm.value = true
 }
 
 const closeForm = () => {
+  editingRecipe.value = null
   showForm.value = false
-  editingId.value = null
 }
 
-/* ---------- IMAGE HANDLING ---------- */
-
-const handleFiles = (files) => {
-  if (!files || !files.length) return
-  const file = files[0]
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
+const onSaved = ({ action, recipe }) => {
+  const list = Array.isArray(recipes) ? recipes : recipes.value
+  if (action === 'create') {
+    list.push(recipe)
+  } else if (action === 'update') {
+    const idx = list.findIndex(r => r.IDRecipes === recipe.IDRecipes)
+    if (idx !== -1) list.splice(idx, 1, recipe)
   }
-  imagePreview.value = URL.createObjectURL(file)
-}
-
-const onFileChange = (e) => {
-  handleFiles(e.target.files)
-}
-
-const onDrop = (e) => {
-  e.preventDefault()
-  handleFiles(e.dataTransfer.files)
-}
-
-const onDragOver = (e) => {
-  e.preventDefault()
-}
-
-/* ---------- SUBMIT ---------- */
-
-const submitForm = () => {
-  if (!form.value.Title) {
-    alert('Title is required')
-    return
-  }
-
-  if (editingId.value === null) {
-    // CREATE
-    const newRecipe = {
-      IDRecipes: Date.now(),
-      ...form.value,
-      ImageUrl: imagePreview.value || null
-    }
-    recipes.value.push(newRecipe)
-  } else {
-    // UPDATE
-    const list = Array.isArray(recipes) ? recipes : recipes.value
-    const rec = list.find(r => r.IDRecipes === editingId.value)
-    if (rec) {
-      rec.Title = form.value.Title
-      rec.CookTime = form.value.CookTime
-      rec.PrepTime = form.value.PrepTime
-      rec.Difficulty = form.value.Difficulty
-      rec.Illustration = form.value.Illustration
-      rec.ImageUrl = imagePreview.value || rec.ImageUrl || null
-    }
-  }
-
   closeForm()
 }
 
-const deleteRecipe = (id) => {
+const deleteRecipe = async (id) => {
   if (!confirm("Delete this recipe?")) return
-
-  if (Array.isArray(recipes)) {
-    const index = recipes.findIndex(i => i.IDRecipes === id)
-    if (index !== -1) recipes.splice(index, 1)
-  } else {
+  try {
+    await apiDeleteRecipe(id)
     recipes.value = recipes.value.filter(i => i.IDRecipes !== id)
+  } catch (err) {
+    console.error('Failed to delete recipe', err)
+    alert('Failed to delete recipe')
   }
 }
 </script>
@@ -154,58 +100,7 @@ const deleteRecipe = (id) => {
     </div>
     
     <!-- POPUP FORM -->
-    <div v-if="showForm" class="card">
-      <div class="modal">
-        <h2>{{ editingId === null ? 'Add recipe' : 'Edit recipe' }}</h2>
-
-        <form @submit.prevent="submitForm">
-          <div class="form-row">
-            <label>Title</label>
-            <input v-model="form.Title" required />
-          </div>
-
-          <!-- DRAG & DROP FIELD -->
-          <div
-            class="form-row dropzone"
-            @dragover="onDragOver"
-            @dragenter.prevent
-            @drop="onDrop"
-          >
-            <label>Image</label>
-            <div class="dropzone-inner">
-              <p>Drop an image here or choose a file</p>
-              <input type="file" accept="image/*" @change="onFileChange" />
-            </div>
-          </div>
-
-          <!-- Preview -->
-          <div v-if="imagePreview">
-            <label>Preview</label>
-            <img :src="imagePreview" class="ImgPreview" alt="Preview" />
-          </div>
-
-          <div class="form-row">
-            <label>Cooking time</label>
-            <input v-model="form.CookTime" type="time" />
-          </div>
-
-          <div class="form-row">
-            <label>Preparation time</label>
-            <input v-model="form.PrepTime" type="time" />
-          </div>
-
-          <div class="form-row">
-            <label>Difficulty</label>
-            <input v-model="form.Difficulty" />
-          </div>
-
-          <div class="actions">
-            <button type="submit">Save</button>
-            <button type="button" @click="closeForm">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <RecipeForm v-if="showForm" :initialRecipe="editingRecipe" @saved="onSaved" @close="closeForm" />
 
     <div class="grid">
       <div class="card" v-for="r in recipes" :key="r.IDRecipes">
@@ -226,8 +121,8 @@ const deleteRecipe = (id) => {
             ♡
           </button>
         </div>
-        <!-- use dropped image if present, otherwise fallback to static -->
-        <img :src="r.ImageUrl || getImage(r.Illustration)" :alt="r.Title" />
+        <!-- use illustration URL from backend /uploads, fallback to logo on error -->
+        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
         <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
         <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>

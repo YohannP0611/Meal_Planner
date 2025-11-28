@@ -4,8 +4,13 @@ const db = require("../models/db");
 
 // GET all Recipes
 router.get("/", (req, res) => {
+  console.log("Fetching all recipes...");
   db.query("SELECT * FROM Recipes", (err, rows) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      console.error("Error fetching recipes:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    console.log(`Found ${rows.length} recipes`);
     res.json(rows);
   });
 });
@@ -21,8 +26,12 @@ router.get("/:id", (req, res) => {
 
 // CREATE recipe
 router.post("/", (req, res) => {
+  console.log("Creating recipe with data:", req.body);
   db.query("INSERT INTO Recipes SET ?", req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      console.error("Error creating recipe:", err);
+      return res.status(500).json({ error: err.message });
+    }
     res.status(201).json({ id: result.insertId, ...req.body });
   });
 });
