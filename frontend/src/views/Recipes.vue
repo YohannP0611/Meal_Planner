@@ -1,15 +1,15 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 
 const recipes = inject('recipes', ref([]))
-
-const getImage = (fileName) => {
+const getImage = (title) => {
   try {
-    return require(`@/assets/${fileName}`)
+    return require(`@/assets/${title}.jpg`)
   } catch (e) {
     return require('@/assets/MPlogo.png')
   }
 }
+
 
 const likeToggle = (item) => {
   item.liked = !item.liked
@@ -18,6 +18,29 @@ const likeToggle = (item) => {
 const passToggle = (item) => {
   item.passed = !item.passed
 }
+
+/* ---------- FILTRES / TRI (wireframe) ---------- */
+
+const sortBy = ref('time') // 'time' | 'liked' | 'cost'
+
+const sortedRecipes = computed(() => {
+  const list = Array.isArray(recipes) ? recipes : recipes.value
+  const arr = [...list]
+
+  if (sortBy.value === 'liked') {
+    return arr.sort((a, b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0))
+  }
+
+  if (sortBy.value === 'time') {
+    // tri grossier : concat PrepTime+CookTime (OK pour la démo)
+    return arr.sort((a, b) =>
+      (a.PrepTime + a.CookTime).localeCompare(b.PrepTime + b.CookTime)
+    )
+  }
+
+  // si un jour vous avez un champ "cost", on pourra trier dessus
+  return arr
+})
 
 /* ---------- POPUP FORM STATE ---------- */
 
@@ -115,9 +138,15 @@ const submitForm = () => {
     const newRecipe = {
       IDRecipes: Date.now(),
       ...form.value,
-      ImageUrl: imagePreview.value || null
+      ImageUrl: imagePreview.value || null,
+      liked: false,
+      passed: false
     }
-    recipes.value.push(newRecipe)
+    if (Array.isArray(recipes)) {
+      recipes.push(newRecipe)
+    } else {
+      recipes.value.push(newRecipe)
+    }
   } else {
     // UPDATE
     const list = Array.isArray(recipes) ? recipes : recipes.value
@@ -148,11 +177,41 @@ const deleteRecipe = (id) => {
 </script>
 
 <template>
-  <div>
-    <div class="about">
-      <button @click="openForm">Add recipe</button>
+  <div class="recipes-page">
+    <!-- BARRE DU HAUT (wireframe) -->
+    <h1 class="page-title">Recipes</h1>
+
+    <div class="recipes-toolbar">
+      <div class="recipes-filters">
+        <button
+          class="filter-pill"
+          :class="{ active: sortBy === 'time' }"
+          @click="sortBy = 'time'"
+        >
+          Time
+        </button>
+        <button
+          class="filter-pill"
+          :class="{ active: sortBy === 'liked' }"
+          @click="sortBy = 'liked'"
+        >
+          Liked
+        </button>
+        <button
+          class="filter-pill"
+          :class="{ active: sortBy === 'cost' }"
+          @click="sortBy = 'cost'"
+        >
+          Cost
+        </button>
+        <button class="filter-pill disabled">...</button>
+      </div>
+
+      <button class="add-recipe-btn" @click="openForm">
+        Add recipe
+      </button>
     </div>
-    
+
     <!-- POPUP FORM -->
     <div v-if="showForm" class="card">
       <div class="modal">
@@ -207,8 +266,9 @@ const deleteRecipe = (id) => {
       </div>
     </div>
 
+    <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
-      <div class="card" v-for="r in recipes" :key="r.IDRecipes">
+      <div class="card recipe-card" v-for="r in sortedRecipes" :key="r.IDRecipes">
         <div class="card-header">
           <button 
             @click="passToggle(r)"
@@ -226,11 +286,17 @@ const deleteRecipe = (id) => {
             ♡
           </button>
         </div>
-        <!-- use dropped image if present, otherwise fallback to static -->
-        <img :src="r.ImageUrl || getImage(r.Illustration)" :alt="r.Title" />
+       <img
+       :src="r.ImageUrl || getImage(r.Title)"
+       :alt="r.Title"
+       class="recipe-image"
+/>
+
+
         <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
         <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>
+
         <div class="CRUD">
           <button @click="deleteRecipe(r.IDRecipes)">🗑️</button>
           <button @click="openEditForm(r)">✏️</button>
