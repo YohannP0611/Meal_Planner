@@ -360,12 +360,10 @@ button.active {
 
 .recipes-page {
   padding: 2rem 4rem;
-  /* pour éviter que tout s’étale trop sur les très grands écrans */
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* titre + barre filtres */
 .recipes-page .page-title {
   font-size: 32px;
   text-align: left;
@@ -396,4 +394,127 @@ button.active {
 
 .recipes-page .grid {
   margin-top: 10px;
+}
+
+.home-page {
+  padding: 2rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: 3fr 1.3fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.home-section-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.home-section-title.second {
+  margin-top: 2.5rem;
+}
+
+.thumb-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.thumb-card {
+  text-align: center;
+}
+
+.thumb-card img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.thumb-caption {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.about-block {
+  margin-top: 2rem;
+  max-width: 700px;
+}
+
+.about-block h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.about-block p {
+  line-height: 1.5;
+}
+
+.home-sidebar {
+  border-left: 2px solid #000;
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.next-meal-card img {
+  width: 100%;
+  max-width: 260px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  margin: 1rem 0;
+}
+
+.recipe-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.shopping-btn {
+  margin-top: auto;
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  border: 2px solid #000;
+  background-color: #ffa346;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.status {
+  margin-top: 1rem;
+  color: #555;
+}
+
+.status.error {
+  color: red;
+}
+
+/* small screens */
+@media (max-width: 900px) {
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .home-sidebar {
+    border-left: none;
+    border-top: 2px solid #000;
+    padding-left: 0;
+    padding-top: 2rem;
+  }
 }

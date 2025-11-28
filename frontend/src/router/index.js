@@ -44,6 +44,12 @@ const routes = [
     component: function(){return import(/* webpackChunkName: "about" */ '../views/ShopView.vue')}
   },
   {
+    path: "/shopping-list/:id",
+    name: "ShoppingList",
+    component: function(){return import(/* webpackChunkName: "about" */ '../views/ShoppingList.vue')},
+  },
+
+  {
     path: '/ingredients',
     name: 'ingredients',
     // route level code-splitting

@@ -1,59 +1,70 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue"
+import { useRouter } from "vue-router"
 
-const recipes = ref([]);
-const loading = ref(true);
-const error = ref(null);
+const router = useRouter()
+
+const recipes = ref([])
+const loading = ref(true)
+const error = ref(null)
 
 onMounted(async () => {
   try {
-    const res = await fetch("http://localhost:3000/api/recipes");
-    if (!res.ok) throw new Error("Failed to load recipes");
-    recipes.value = await res.json();
+    const res = await fetch("http://localhost:3000/api/recipes")
+    if (!res.ok) throw new Error("Failed to load recipes")
+    recipes.value = await res.json()
   } catch (e) {
-    error.value = e.message;
+    error.value = e.message
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-});
+})
 
-// pour l’instant on fait des listes simples
-const trending = computed(() => recipes.value.slice(0, 5));
-const liked = computed(() => recipes.value.slice(2, 7));
-const nextPlannedMeal = computed(() => recipes.value[0] || null);
+const trending = computed(() => recipes.value.slice(0, 5))
+const liked = computed(() => recipes.value.slice(2, 7))
+const nextPlannedMeal = computed(() => recipes.value[0] || null)
 
-function illustrationUrl(recipe) {
-  return "https://source.unsplash.com/300x200/?food,meal";
+// Load local images matching recipe titles
+const getImage = (title) => {
+  try {
+    return require(`@/assets/${title}.jpg`)
+  } catch (e) {
+    return require('@/assets/MPlogo.png')
+  }
+}
+
+// Navigation functions
+const goToRecipe = () => {
+  router.push("/recipes")
+}
+
+const goToShoppingList = () => {
+  if (!nextPlannedMeal.value) return
+  router.push(`/shopping-list/${nextPlannedMeal.value.IDRecipes}`)
 }
 </script>
 
 <template>
   <div class="home-page">
-    <div class="home-layout">
-      <!-- colonne principale gauche -->
+    <div v-if="loading" class="status">Loading recipes...</div>
+    <div v-else-if="error" class="status error">Error: {{ error }}</div>
+
+    <div v-else class="home-layout">
+
+      <!-- Left section -->
       <section class="home-main">
         <h2 class="home-section-title">Tendances</h2>
-
         <div class="thumb-row">
-          <div
-            v-for="r in trending"
-            :key="'trend-' + r.IDRecipes"
-            class="thumb-card"
-          >
-            <img :src="illustrationUrl(r)" :alt="r.Title" />
+          <div v-for="r in trending" :key="'trend-' + r.IDRecipes" class="thumb-card">
+            <img :src="getImage(r.Title)" :alt="r.Title" />
             <p class="thumb-caption">{{ r.Title }}</p>
           </div>
         </div>
 
         <h2 class="home-section-title second">Meal liked</h2>
-
         <div class="thumb-row">
-          <div
-            v-for="r in liked"
-            :key="'liked-' + r.IDRecipes"
-            class="thumb-card"
-          >
-            <img :src="illustrationUrl(r)" :alt="r.Title" />
+          <div v-for="r in liked" :key="'liked-' + r.IDRecipes" class="thumb-card">
+            <img :src="getImage(r.Title)" :alt="r.Title" />
             <p class="thumb-caption">{{ r.Title }}</p>
           </div>
         </div>
@@ -69,23 +80,21 @@ function illustrationUrl(recipe) {
         </section>
       </section>
 
-      <!-- colonne droite : next planned meal -->
+      <!-- Right sidebar -->
       <aside class="home-sidebar">
         <h2 class="sidebar-title">Next planned meal:</h2>
 
         <div v-if="nextPlannedMeal" class="next-meal-card">
           <p>Lunch for tomorrow: {{ nextPlannedMeal.Title }}</p>
-          <img
-            :src="illustrationUrl(nextPlannedMeal)"
-            :alt="nextPlannedMeal.Title"
-          />
-          <a href="#" class="recipe-link">Link to the recipe</a>
+          <img :src="getImage(nextPlannedMeal.Title)" :alt="nextPlannedMeal.Title" />
+          <a href="" class="recipe-link" @click.prevent="goToRecipe">Link to the recipe</a>
         </div>
 
-        <button class="shopping-btn">
-          Prepare your shopping list
+        <button class="shopping-btn" @click="goToShoppingList">
+             Prepare your shopping list
         </button>
       </aside>
+
     </div>
   </div>
 </template>

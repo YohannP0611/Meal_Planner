@@ -47,4 +47,24 @@ router.delete("/:id", (req, res) => {
   });
 });
 
+router.get("/:id/shopping-list", (req, res) => {
+  const sql = `
+    SELECT 
+      n.IDIngredients,
+      n.Quantity,
+      n.Unit,
+      i.Name,
+      i.Calories,
+      i.Protein,
+      i.Carbs
+    FROM Needs n
+    JOIN Ingredients i ON i.IDIngredients = n.IDIngredients
+    WHERE n.IDRecipes = ?
+  `;
+
+  db.query(sql, [req.params.id], (err, rows) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(rows);
+  });
+});
 module.exports = router;
