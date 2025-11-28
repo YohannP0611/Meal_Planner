@@ -23,7 +23,7 @@ provide('mealPlans', mealPlans)
       <router-link to="/">Home</router-link> |
       <router-link to="/meals">Meals</router-link> |
       <router-link to="/ingredients">Ingredients</router-link> |
-      <router-link to="/recipes">Recipes</router-link>
+      <router-link to="/recipes">Recipes</router-link> |
       <router-link to="/shops">Shops</router-link>
     </nav>
   </div>
