@@ -27,15 +27,15 @@ router.get("/:id", (req, res) => {
 // CREATE recipe
 router.post("/", (req, res) => {
   console.log("Creating recipe with data:", req.body);
-  db.query("INSERT INTO Recipes SET ?", req.body, (err, result) => {
+  const payload = sanitizeRecipePayload(req.body);
+  console.log("Sanitized payload:", payload);
+  
+  db.query("INSERT INTO Recipes SET ?", payload, (err, result) => {
     if (err) {
       console.error("Error creating recipe:", err);
       return res.status(500).json({ error: err.message });
     }
-    res.status(201).json({ id: result.insertId, ...req.body });
-  });
-});
-
+    res.status(201).json({ id: result.insertId, ...payload });
 // UPDATE recipe
 router.put("/:id", (req, res) => {
   db.query(
@@ -44,6 +44,9 @@ router.put("/:id", (req, res) => {
     (err, result) => {
       if (err) return res.status(500).json({ error: err });
       res.json({ id: req.params.id, ...req.body });
+    }
+  );
+});   res.json({ id: req.params.id, ...req.body });
     }
   );
 });

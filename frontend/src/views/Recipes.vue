@@ -4,14 +4,6 @@ import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesS
 
 const recipes = ref([])
 
-const getImage = (fileName) => {
-  try {
-    return require(`@/assets/${fileName}`)
-  } catch (e) {
-    return require('@/assets/MPlogo.png')
-  }
-}
-
 // Construct full URL for recipe images from backend /uploads
 function getRecipeImageUrl(recipe) {
   if (recipe.Illustration) {
@@ -122,7 +114,7 @@ const deleteRecipe = async (id) => {
           </button>
         </div>
         <!-- use illustration URL from backend /uploads, fallback to logo on error -->
-        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
+        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" style="display:block; margin:0 auto;" />
         <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
         <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>

@@ -102,8 +102,13 @@ const openEditForm = (ingredient) => {
   editingId.value = ingredient.IDIngredients
   // prefill image preview if the ingredient has one
   if (ingredient.IngredientPicture) {
-    if (imagePreview.value) URL.revokeObjectURL(imagePreview.value)
-    imagePreview.value = ingredient.IngredientPicture
+    if (imagePreview.value && imagePreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview.value)
+    }
+    // Construct full URL for preview
+    imagePreview.value = `http://localhost:3000/uploads/${ingredient.IngredientPicture}`
+  } else {
+    imagePreview.value = null
   }
   showForm.value = true
 }

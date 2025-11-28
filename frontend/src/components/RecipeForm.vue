@@ -12,8 +12,8 @@ const form = ref({
   Title: '',
   CookTime: '00:00:00',
   PrepTime: '00:00:00',
-  Difficulty: 'normal',
-  Illustration: '',
+  Difficulty: 'easy',
+  Illustration: null,
   Servings: 1,
   Description: '',
   Steps: ''
@@ -27,6 +27,7 @@ const handleFiles = async (files) => {
   try {
     // upload to backend, get just the filename
     const filename = await uploadFile(file)
+    console.log('Uploaded file:', filename)
     // show preview with full URL
     imagePreview.value = `http://localhost:3000/uploads/${filename}`
     // store just the filename in form (will be saved to DB)
@@ -46,11 +47,18 @@ const resetForm = () => {
     Title: '',
     CookTime: '00:00:00',
     PrepTime: '00:00:00',
-    Difficulty: 'normal',
-    Illustration: '',
+    Difficulty: 'easy',
+    Illustration: null,
     Servings: 1,
     Description: '',
     Steps: ''
+  }
+  if (imagePreview.value) {
+    // Only revoke if it's a blob URL (not a backend URL)
+    if (imagePreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview.value)
+    }
+    imagePreview.value = null
   }
 }
 
@@ -58,14 +66,13 @@ watch(() => props.initialRecipe, (r) => {
   if (!r) {
     resetForm()
     editingId.value = null
-    imagePreview.value = null
   } else {
     form.value = {
       Title: r.Title || '',
       CookTime: r.CookTime || '00:00:00',
       PrepTime: r.PrepTime || '00:00:00',
-      Difficulty: r.Difficulty || 'normal',
-      Illustration: r.Illustration || '',
+      Difficulty: r.Difficulty || 'easy',
+      Illustration: r.Illustration || null,
       Servings: r.Servings || 1,
       Description: r.Description || '',
       Steps: r.Steps || ''
@@ -73,11 +80,16 @@ watch(() => props.initialRecipe, (r) => {
     editingId.value = r.IDRecipes || null
     // show preview: if Illustration is just a filename, construct full URL
     if (r.Illustration) {
+      if (imagePreview.value && imagePreview.value.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview.value)
+      }
       if (r.Illustration.startsWith('http')) {
         imagePreview.value = r.Illustration
       } else {
         imagePreview.value = `http://localhost:3000/uploads/${r.Illustration}`
       }
+    } else {
+      imagePreview.value = null
     }
   }
 }, { immediate: true })
@@ -87,19 +99,22 @@ const submit = async () => {
 
   try {
     const payload = { ...form.value }
+    console.log('Submitting recipe:', payload)
 
     if (editingId.value === null) {
       const created = await createRecipe(payload)
+      console.log('Created recipe:', created)
       emit('saved', { action: 'create', recipe: created })
     } else {
       const updated = await updateRecipe(editingId.value, payload)
+      console.log('Updated recipe:', updated)
       emit('saved', { action: 'update', recipe: updated })
     }
 
     resetForm()
   } catch (err) {
-    console.error(err)
-    alert('Failed to save recipe')
+    console.error('Submit error:', err)
+    alert('Failed to save recipe: ' + err.message)
   }
 }
 
@@ -145,7 +160,11 @@ const cancel = () => {
 
         <div class="form-row">
           <label>Difficulty</label>
-          <input v-model="form.Difficulty" />
+          <select v-model="form.Difficulty" required>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
         </div>
 
         <div class="actions">
@@ -158,5 +177,5 @@ const cancel = () => {
 </template>
 
 <style scoped>
-.ImgPreview { max-width: 200px; display:block; margin-top:10px }
+.ImgPreview { max-width: 200px; display:block; margin: 10px auto 0; }
 </style>

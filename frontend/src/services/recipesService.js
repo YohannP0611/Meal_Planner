@@ -26,10 +26,13 @@ export async function createRecipe(recipe) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error('Failed to create recipe');
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+    console.error('Create recipe failed:', res.status, errorData);
+    throw new Error(`Failed to create recipe: ${errorData.error || res.statusText}`);
+  }
   const data = await res.json();
-  // backend returns { id: insertId, ...recipe }
-  return normalize({ IDRecipes: Number(data.id || data.IDRecipes), ...recipe, ...data });
+  return normalize({ IDRecipes: Number(data.id || data.IDRecipes), ...payload, ...data });
 }
 
 export async function updateRecipe(id, recipe) {
