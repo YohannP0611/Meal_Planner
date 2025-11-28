@@ -4,8 +4,13 @@ const db = require("../models/db");
 
 // GET all Recipes
 router.get("/", (req, res) => {
+  console.log("Fetching all recipes...");
   db.query("SELECT * FROM Recipes", (err, rows) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      console.error("Error fetching recipes:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    console.log(`Found ${rows.length} recipes`);
     res.json(rows);
   });
 });
@@ -21,12 +26,16 @@ router.get("/:id", (req, res) => {
 
 // CREATE recipe
 router.post("/", (req, res) => {
-  db.query("INSERT INTO Recipes SET ?", req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.status(201).json({ id: result.insertId, ...req.body });
-  });
-});
-
+  console.log("Creating recipe with data:", req.body);
+  const payload = sanitizeRecipePayload(req.body);
+  console.log("Sanitized payload:", payload);
+  
+  db.query("INSERT INTO Recipes SET ?", payload, (err, result) => {
+    if (err) {
+      console.error("Error creating recipe:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(201).json({ id: result.insertId, ...payload });
 // UPDATE recipe
 router.put("/:id", (req, res) => {
   db.query(
@@ -35,6 +44,9 @@ router.put("/:id", (req, res) => {
     (err, result) => {
       if (err) return res.status(500).json({ error: err });
       res.json({ id: req.params.id, ...req.body });
+    }
+  );
+});   res.json({ id: req.params.id, ...req.body });
     }
   );
 });

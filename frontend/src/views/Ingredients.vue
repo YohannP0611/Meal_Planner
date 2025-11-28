@@ -1,113 +1,195 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { 
+  getIngredients as fetchIngredients, 
+  createIngredient, 
+  updateIngredient, 
+  deleteIngredient as apiDeleteIngredient 
+} from '@/services/ingredientsService'
 
-// Safely get ingredients from parent, or fall back to an empty array
-const ingredients = inject('ingredients', ref([]))
+import { onMounted, ref } from 'vue'
+import { uploadFile } from '@/services/uploadService'
 
-const getImage = (name) => {
+/* Reactive list of ingredients loaded from the backend */
+const ingredients = ref([])
+
+/* Fetch ingredients from the API */
+const loadIngredients = async () => {
   try {
-    // @ points to /src, so this is src/assets/<Name>.jpg
-    return require(`@/assets/${name}.jpg`)
-  } catch (e) {
-    // fallback image if file not found
-    return require('@/assets/MPlogo.png')   // or some default.png
+    ingredients.value = await fetchIngredients()
+    console.log("Loaded ingredients:", ingredients.value)
+  } catch (err) {
+    console.error(err)
   }
 }
 
-// toggle like for ONE ingredient
-const likeToggle = (item) => {
-  item.liked = !item.liked
-} 
+/* Load ingredients when the component is mounted */
+onMounted(() => {
+  loadIngredients()
+})
 
-// toggle pass for ONE ingredient
-const passToggle = (item) => {
-  item.passed = !item.passed
+/* Returns an image based on the ingredient's name */
+const getImage = (name) => {
+  try {
+    return require(`@/assets/${name}.jpg`)
+  } catch (e) {
+    // Fallback image if the file doesn't exist
+    return require('@/assets/MPlogo.png')
+  }
 }
 
-/* ---------- POPUP FORM STATE ---------- */
+/* Construct full URL for ingredient images */
+const getIngredientImageUrl = (ingredient) => {
+  if (!ingredient.IngredientPicture) return getImage(ingredient.Illustration || ingredient.Name);
+  // IngredientPicture contains just the filename, construct full URL
+  return `http://localhost:3000/uploads/${ingredient.IngredientPicture}`;
+}
+
+/* ----------- LIKE / PASS SYSTEM ----------- */
+
+/* Toggle “like” unless the item is marked as passed */
+const likeToggle = (item) => {
+  if (!item.passed) {
+    item.liked = !item.liked
+  }
+}
+
+/* Toggle “pass” unless the item is marked as liked */
+const passToggle = (item) => {
+  if (!item.liked) {
+    item.passed = !item.passed
+  }
+}
+
+
+/* ----------- POPUP FORM MANAGEMENT ----------- */
 
 const showForm = ref(false)
+
+/* Form data (used for both create and edit) */
 const form = ref({
   Name: '',
   Calories: 0,
   Carbs: 0,
   Protein: 0
 })
+
+/* editingId = null → create mode | number → edit mode */
 const editingId = ref(null)
-// open popup
+
+/* Open form in create mode */
 const openForm = () => {
   form.value = {
     Name: '',
     Calories: 0,
     Carbs: 0,
-    Protein: 0
+    Protein: 0,
+    IngredientPicture: null
   }
   editingId.value = null
+  if (imagePreview.value) { URL.revokeObjectURL(imagePreview.value); imagePreview.value = null }
   showForm.value = true
 }
 
+/* Open form in edit mode with existing values */
 const openEditForm = (ingredient) => {
   form.value = {
     Name: ingredient.Name,
     Calories: ingredient.Calories,
     Carbs: ingredient.Carbs,
-    Protein: ingredient.Protein
+    Protein: ingredient.Protein,
+    IngredientPicture: ingredient.IngredientPicture || null
   }
-  editingId.value = ingredient.IDIngredients   // 👈 edit mode for this ID
+  editingId.value = ingredient.IDIngredients
+  // prefill image preview if the ingredient has one
+  if (ingredient.IngredientPicture) {
+    if (imagePreview.value && imagePreview.value.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview.value)
+    }
+    // Construct full URL for preview
+    imagePreview.value = `http://localhost:3000/uploads/${ingredient.IngredientPicture}`
+  } else {
+    imagePreview.value = null
+  }
   showForm.value = true
 }
 
-// close popup
+/* Close the popup form */
 const closeForm = () => {
   showForm.value = false
+  editingId.value = null
+  if (imagePreview.value) { URL.revokeObjectURL(imagePreview.value); imagePreview.value = null }
 }
 
-const submitForm = () => {
+
+const imagePreview = ref(null)
+
+const handleFiles = async (files) => {
+  if (!files || !files.length) return
+  const file = files[0]
+  try {
+    // upload to backend, get just the filename
+    const filename = await uploadFile(file)
+    // show preview with full URL
+    imagePreview.value = `http://localhost:3000/uploads/${filename}`
+    // store just the filename in form (will be saved to DB)
+    form.value.IngredientPicture = filename
+  } catch (err) {
+    console.error('Upload failed', err)
+    alert('Image upload failed')
+  }
+}
+
+const onFileChange = (e) => handleFiles(e.target.files)
+const onDrop = (e) => { e.preventDefault(); handleFiles(e.dataTransfer.files) }
+const onDragOver = (e) => e.preventDefault()
+
+/* Submit form (either create or update depending on editingId) */
+const submitForm = async () => {
   if (!form.value.Name) {
     alert('Name is required')
     return
   }
 
-  if (editingId.value === null) {
-    // CREATE
-    const newIngredient = {
-      IDIngredients: Date.now(),  // simple fake ID
-      ...form.value
+  try {
+    if (editingId.value === null) {
+      // Create new ingredient (don't send ImageUrl until backend supports it)
+      await createIngredient({ ...form.value })
+      console.log("Created ingredient:", form.value)
+    } else {
+      // Update existing ingredient (don't send ImageUrl until backend supports it)
+      await updateIngredient(editingId.value, { ...form.value })
+      console.log("Updated ingredient:", form.value)
     }
 
-    if (Array.isArray(ingredients)) {
-      ingredients.push(newIngredient)
-    } else if (Array.isArray(ingredients?.value)) {
-      ingredients.value.push(newIngredient)
-    }
-  } else {
-    // UPDATE
-    if (Array.isArray(ingredients)) {
-      const ing = ingredients.find(i => i.IDIngredients === editingId.value)
-      if (ing) Object.assign(ing, form.value)
-    } else if (Array.isArray(ingredients?.value)) {
-      const ing = ingredients.value.find(i => i.IDIngredients === editingId.value)
-      if (ing) Object.assign(ing, form.value)
-    }
+    // Refresh the list after saving
+    await loadIngredients()
+    
+    showForm.value = false
+    editingId.value = null
+  } catch (err) {
+    console.error("Error:", err)
+    alert("Failed to save ingredient")
   }
-
-  showForm.value = false
-  editingId.value = null
 }
-const deleteIngredient = (id) => {
+
+/* Delete an ingredient by ID */
+const deleteIngredient = async (id) => {
   if (!confirm("Delete this ingredient?")) return
 
-  if (Array.isArray(ingredients)) {
-    const index = ingredients.findIndex(i => i.IDIngredients === id)
-    if (index !== -1) ingredients.splice(index, 1)
-  } else {
-    ingredients.value = ingredients.value.filter(i => i.IDIngredients !== id)
+  try {
+    await apiDeleteIngredient(id)
+    console.log("Deleted ingredient:", id)
+
+    // Refresh the list after deletion
+    await loadIngredients()
+  } catch (err) {
+    console.error("Error:", err)
+    alert("Failed to delete ingredient")
   }
 }
 </script>
 
 <template>
-  <!-- single root wrapper to avoid any internal Vue "flags" crash -->
   <div>
     <div class="about">
       <button @click="openForm">Add ingredient</button>
@@ -116,27 +198,46 @@ const deleteIngredient = (id) => {
     <!-- POPUP FORM -->
     <div v-if="showForm" class="card">
       <div class="modal">
-        <h2>Add ingredient</h2>
+            <h2>{{ editingId === null ? 'Add ingredient' : 'Edit ingredient' }}</h2>
 
-        <form @submit.prevent="submitForm">
+            <form @submit.prevent="submitForm">
           <div class="form-row">
             <label>Name</label>
             <input v-model="form.Name" required />
           </div>
 
+                    <!-- Image upload -->
+                    <div
+                      class="form-row dropzone"
+                      @dragover="onDragOver"
+                      @dragenter.prevent
+                      @drop="onDrop"
+                    >
+                      <label>Image</label>
+                      <div class="dropzone-inner">
+                        <p>Drop an image here or choose a file</p>
+                        <input type="file" accept="image/*" @change="onFileChange" />
+                      </div>
+                    </div>
+
+                    <div v-if="imagePreview">
+                      <label>Preview</label>
+                      <img :src="imagePreview" class="ImgPreview" alt="Preview" />
+                    </div>
+
           <div class="form-row">
             <label>Calories</label>
-            <input v-model.number="form.Calories" type="number" min="0" />
+            <input v-model.number="form.Calories" type="number" min="0" step="any" />
           </div>
 
           <div class="form-row">
             <label>Carbs</label>
-            <input v-model.number="form.Carbs" type="number" min="0" />
+            <input v-model.number="form.Carbs" type="number" min="0" step="any" />
           </div>
 
           <div class="form-row">
             <label>Protein</label>
-            <input v-model.number="form.Protein" type="number" min="0" />
+            <input v-model.number="form.Protein" type="number" min="0" step="any" />
           </div>
 
           <div class="actions">
@@ -166,10 +267,14 @@ const deleteIngredient = (id) => {
             ♡
           </button>
         </div>
-        <img :src="getImage(i.Name)" :alt="i.Name" />
+
+          <!-- Ingredient image: use helper function to construct full URL -->
+          <img :src="getIngredientImageUrl(i)" :alt="i.Name" />
+
         <p><strong>Calories:</strong> {{ i.Calories }} kcal</p>
         <p><strong>Carbs:</strong> {{ i.Carbs }} g</p>
         <p><strong>Protein:</strong> {{ i.Protein }} g</p>
+
         <div class="CRUD">
           <button @click="deleteIngredient(i.IDIngredients)">🗑️</button>
           <button @click="openEditForm(i)">✏️</button>
@@ -178,12 +283,3 @@ const deleteIngredient = (id) => {
     </div>
   </div>
 </template>
-<!--
-<template>
-  <div>
-    <h1>Ingredients Manager</h1>
-    <IngredientForm />
-    <IngredientsList />
-  </div>
-</template>
--->

@@ -5,7 +5,8 @@ import { getIngredients } from "@/services/ingredientsService";
 const ingredients = ref([]);
 const loading = ref(true);
 
-onMounted(async () => {
+const loadIngredients = async () => {
+  loading.value = true;
   try {
     ingredients.value = await getIngredients();
   } catch (err) {
@@ -13,7 +14,13 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+};
+
+onMounted(() => {
+  loadIngredients();
 });
+
+defineExpose({ loadIngredients });
 </script>
 
 <template>

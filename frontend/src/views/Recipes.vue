@@ -1,4 +1,27 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
+
+const recipes = ref([])
+
+// Construct full URL for recipe images from backend /uploads
+function getRecipeImageUrl(recipe) {
+  if (recipe.Illustration) {
+    return `http://localhost:3000/uploads/${recipe.Illustration}`;
+  }
+  // Fallback to logo placeholder
+  return require('@/assets/MPlogo.png');
+}
+
+const loadRecipes = async () => {
+  try {
+    recipes.value = await getRecipes()
+    console.log('Loaded recipes:', recipes.value)
+    recipes.value.forEach(r => {
+      console.log(`Recipe: ${r.Title}, Illustration: "${r.Illustration}", Type: ${typeof r.Illustration}`)
+    })
+  } catch (err) {
+    console.error('Failed to load recipes', err)
 import { inject, ref, computed } from 'vue'
 
 const recipes = inject('recipes', ref([]))
@@ -11,10 +34,17 @@ const getImage = (title) => {
 }
 
 
-const likeToggle = (item) => {
-  item.liked = !item.liked
-}
 
+onMounted(() => loadRecipes())
+
+// toggle like for ONE recipe
+const likeToggle = (item) => {
+  if (!item.passed) {
+    item.liked = !item.liked
+  }
+} 
+
+// toggle pass for ONE recipe
 const passToggle = (item) => {
   item.passed = !item.passed
 }
@@ -42,62 +72,58 @@ const sortedRecipes = computed(() => {
   return arr
 })
 
-/* ---------- POPUP FORM STATE ---------- */
+/* ---------- FILTRES / TRI (wireframe) ---------- */
 
-const showForm = ref(false)
+const sortBy = ref('time') // 'time' | 'liked' | 'cost'
 
-const form = ref({
-  Title: '',
-  CookTime: '00:00:00',
-  PrepTime: '00:00:00',
-  Difficulty: 'normal',
-  Illustration: ''
+const sortedRecipes = computed(() => {
+  const list = Array.isArray(recipes) ? recipes : recipes.value
+  const arr = [...list]
+
+  if (sortBy.value === 'liked') {
+    return arr.sort((a, b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0))
+  }
+
+  if (sortBy.value === 'time') {
+    // tri grossier : concat PrepTime+CookTime (OK pour la démo)
+    return arr.sort((a, b) =>
+      (a.PrepTime + a.CookTime).localeCompare(b.PrepTime + b.CookTime)
+    )
+  }
+
+  // si un jour vous avez un champ "cost", on pourra trier dessus
+  return arr
 })
 
-const editingId = ref(null)
+/* Use RecipeForm component to handle create/edit */
+import RecipeForm from '@/components/RecipeForm.vue'
 
-// blob URL for dropped/selected image
-const imagePreview = ref(null)
-
-const resetForm = () => {
-  form.value = {
-    Title: '',
-    CookTime: '00:00:00',
-    PrepTime: '00:00:00',
-    Difficulty: 'normal',
-    Illustration: ''
-  }
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
-  }
-  imagePreview.value = null
-}
+const showForm = ref(false)
+const editingRecipe = ref(null)
 
 const openForm = () => {
-  resetForm()
-  editingId.value = null
+  editingRecipe.value = null
   showForm.value = true
 }
 
 const openEditForm = (recipe) => {
-  form.value = {
-    Title: recipe.Title,
-    CookTime: recipe.CookTime,
-    PrepTime: recipe.PrepTime,
-    Difficulty: recipe.Difficulty,
-    Illustration: recipe.Illustration || ''
-  }
-  editingId.value = recipe.IDRecipes
-  // si la recette a déjà une image, on la prévisualise
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value)
-  }
-  imagePreview.value = recipe.ImageUrl || null
+  editingRecipe.value = recipe
   showForm.value = true
 }
 
 const closeForm = () => {
+  editingRecipe.value = null
   showForm.value = false
+}
+
+const onSaved = ({ action, recipe }) => {
+  const list = Array.isArray(recipes) ? recipes : recipes.value
+  if (action === 'create') {
+    list.push(recipe)
+  } else if (action === 'update') {
+    const idx = list.findIndex(r => r.IDRecipes === recipe.IDRecipes)
+    if (idx !== -1) list.splice(idx, 1, recipe)
+  }
   editingId.value = null
 }
 
@@ -164,14 +190,14 @@ const submitForm = () => {
   closeForm()
 }
 
-const deleteRecipe = (id) => {
+const deleteRecipe = async (id) => {
   if (!confirm("Delete this recipe?")) return
-
-  if (Array.isArray(recipes)) {
-    const index = recipes.findIndex(i => i.IDRecipes === id)
-    if (index !== -1) recipes.splice(index, 1)
-  } else {
+  try {
+    await apiDeleteRecipe(id)
     recipes.value = recipes.value.filter(i => i.IDRecipes !== id)
+  } catch (err) {
+    console.error('Failed to delete recipe', err)
+    alert('Failed to delete recipe')
   }
 }
 </script>
@@ -286,6 +312,8 @@ const deleteRecipe = (id) => {
             ♡
           </button>
         </div>
+        <!-- use illustration URL from backend /uploads, fallback to logo on error -->
+        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" style="display:block; margin:0 auto;" />
        <img
        :src="r.ImageUrl || getImage(r.Title)"
        :alt="r.Title"

@@ -33,6 +33,19 @@ const getImage = (title) => {
   }
 }
 
+// Construct full URL for recipe images from backend /uploads
+const getRecipeImageUrl = (recipe) => {
+  if (!recipe.Illustration) return require('@/assets/MPlogo.png');
+  // if it's already a full URL, use it as-is
+  if (recipe.Illustration.startsWith('http')) {
+    return recipe.Illustration;
+  }
+  // otherwise, it's a filename - serve from backend /uploads/
+  return `http://localhost:3000/uploads/${recipe.Illustration}`;
+}
+
+
+
 // Navigation functions
 const goToRecipe = () => {
   router.push("/recipes")
@@ -89,6 +102,13 @@ const goToShoppingList = () => {
           <img :src="getImage(nextPlannedMeal.Title)" :alt="nextPlannedMeal.Title" />
           <a href="" class="recipe-link" @click.prevent="goToRecipe">Link to the recipe</a>
         </div>
+        <!-- use illustration URL from backend /uploads, fallback to logo on error -->
+        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
+        <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
+        <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
+        <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>
+        </router-link>
+      </div>
 
         <button class="shopping-btn" @click="goToShoppingList">
              Prepare your shopping list
