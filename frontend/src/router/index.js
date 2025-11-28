@@ -39,6 +39,11 @@ const routes = [
     }
   },
   {
+    path: "/shops",
+    name: "shops",
+    component: function(){return import(/* webpackChunkName: "about" */ '../views/ShopView.vue')}
+  },
+  {
     path: '/ingredients',
     name: 'ingredients',
     // route level code-splitting

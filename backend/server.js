@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 
@@ -10,5 +9,6 @@ app.use(express.json());
 // routes
 app.use("/api/ingredients", require("./routes/ingredients"));
 app.use("/api/recipes", require("./routes/recipes"));
+app.use("/api/shops", require("./routes/shops"));
 
 app.listen(3000, () => console.log("Backend running on port 3000"));

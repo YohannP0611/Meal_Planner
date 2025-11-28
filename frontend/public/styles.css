@@ -138,3 +138,221 @@ button.active {
   text-decoration: none;
   color: inherit;
 }
+
+/* ========= PAGE SHOPS ========= */
+
+.shop-page {
+  padding: 2rem 4rem;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Search + Type filter */
+.search-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border-radius: 25px;
+  border: 1px solid #888;
+  font-size: 16px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+}
+
+/* Type dropdown */
+.type-select {
+  position: relative;
+}
+
+.type-button {
+  padding: 10px 18px;
+  border-radius: 25px;
+  border: 1px solid #333;
+  background: #f28f1b;
+  color: white;
+  cursor: pointer;
+}
+
+.type-button:hover {
+  background-color: #d87c11;
+}
+
+.arrow {
+  margin-left: 6px;
+}
+
+.type-dropdown {
+  position: absolute;
+  top: 105%;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 5px 0;
+  display: none;
+  min-width: 160px;
+  z-index: 10;
+}
+
+.type-select:hover .type-dropdown {
+  display: block;
+}
+
+.type-option {
+  padding: 8px 15px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.type-option:hover {
+  background-color: #f2f2f2;
+}
+
+/* ========= CONTENT LAYOUT ========= */
+.content-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+/* ========= LEFT SHOP LIST ========= */
+.shop-list {
+  border-right: 1px solid #eee;
+  padding-right: 1rem;
+}
+
+.shop-list-item {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background-color: #fff;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.shop-list-item:hover {
+  background: #f0f0f0;
+}
+
+.shop-list-item.active {
+  border: 2px solid #f28f1b;
+  background-color: #fff7ec;
+}
+
+.shop-list-name {
+  font-weight: bold;
+}
+
+.shop-list-type {
+  font-size: 13px;
+  color: gray;
+}
+
+/* ========= RIGHT SHOP DETAIL ========= */
+.shop-detail {
+  padding: 0.8rem;
+}
+
+.detail-top {
+  display: flex;
+  gap: 25px;
+}
+
+.shop-picture-placeholder {
+  width: 230px;
+  height: 180px;
+  background-color: #7a2cff;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.shop-info h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.label {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* ===== ABOUT SECTION ==== */
+
+.about h3 {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.about p {
+  line-height: 1.4;
+}
+
+/* ===== BUTTONS ROW ===== */
+
+.buttons-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.primary-btn,
+.secondary-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid black;
+  transition: 0.2s;
+}
+
+.primary-btn {
+  background-color: #ffa346;
+}
+
+.primary-btn:hover {
+  background-color: #d98418;
+}
+
+.secondary-btn {
+  background-color: white;
+}
+
+.secondary-btn:hover {
+  background-color: #f1f1f1;
+}
