@@ -7,12 +7,14 @@ const router = useRouter()
 const recipes = ref([])
 const loading = ref(true)
 const error = ref(null)
+const selectedRecipe = ref(null)
 
 onMounted(async () => {
   try {
     const res = await fetch("http://localhost:3000/api/recipes")
     if (!res.ok) throw new Error("Failed to load recipes")
     recipes.value = await res.json()
+  selectedRecipe.value = recipes.value[0] || null
   } catch (e) {
     error.value = e.message
   } finally {
@@ -22,7 +24,8 @@ onMounted(async () => {
 
 const trending = computed(() => recipes.value.slice(0, 5))
 const liked = computed(() => recipes.value.slice(2, 7))
-const nextPlannedMeal = computed(() => recipes.value[0] || null)
+const nextPlannedMeal = computed(() => selectedRecipe.value)
+
 
 // Load local images matching recipe titles
 const getImage = (title) => {
@@ -44,7 +47,9 @@ const getRecipeImageUrl = (recipe) => {
   return `http://localhost:3000/uploads/${recipe.Illustration}`;
 }
 
-
+const selectRecipe = (recipe) => {
+  selectedRecipe.value = recipe
+}
 
 // Navigation functions
 const goToRecipe = () => {
@@ -68,12 +73,19 @@ const goToShoppingList = () => {
       <section class="home-main">
         <h2 class="home-section-title">Tendances</h2>
         <div class="thumb-row">
-          <div v-for="r in trending" :key="'trend-' + r.IDRecipes" class="thumb-card">
-            <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" />
-            <p class="thumb-caption">{{ r.Title }}</p>
-          </div>
+          <div
+          v-for="r in trending"
+          :key="'trend-' + r.IDRecipes"
+          class="thumb-card"
+          @click="selectRecipe(r)"
+          ><img
+          :src="getRecipeImageUrl(r)"
+          :alt="r.Title"
+          @error="(e) => e.target.src = require('@/assets/MPlogo.png')"
+          />
+          <p class="thumb-caption">{{ r.Title }}</p>
+</div>
         </div>
-
         <h2 class="home-section-title second">Meal liked</h2>
         <div class="thumb-row">
           <div v-for="r in liked" :key="'liked-' + r.IDRecipes" class="thumb-card">

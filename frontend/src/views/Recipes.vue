@@ -5,13 +5,31 @@ import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesS
 const recipes = ref([])
 
 // Construct full URL for recipe images from backend /uploads
+// Construct full URL for recipe images
 function getRecipeImageUrl(recipe) {
-  if (recipe.Illustration) {
-    return `http://localhost:3000/uploads/${recipe.Illustration}`;
+  const illu = recipe.Illustration;
+
+  // 1) Si on a quelque chose dans Illustration
+  if (illu) {
+    // si c'est déjà une URL complète -> on renvoie tel quel
+    if (illu.startsWith('http')) {
+      return illu;
+    }
+
+    // si ça contient déjà /uploads/ -> on ne rajoute pas deux fois
+    if (illu.includes('/uploads/')) {
+      return `http://localhost:3000${illu}`;
+    }
+
+    // sinon c'est juste un nom de fichier stocké en BDD
+    // ex: "Pasta Al Pomodoro.jpg" ou "17643...-wireframe1.png"
+    return `http://localhost:3000/uploads/${illu}`;
   }
-  // Fallback to logo placeholder
+
+  // 2) Pas d'Illustration -> logo par défaut
   return require('@/assets/MPlogo.png');
 }
+
 
 const loadRecipes = async () => {
   try {
@@ -53,7 +71,7 @@ const passToggle = (item) => {
   }
 }
 
-/* ---------- FILTRES / TRI (wireframe) ---------- */
+/* ---------- FILTERS / SORTING (wireframe) ---------- */
 
 const sortBy = ref('time') // 'time' | 'liked' | 'cost'
 

@@ -13,19 +13,21 @@ provide('mealPlans', mealPlans)
 </script>
 
 <template>
-  
   <div id="HeaderContainer">
     <div id="TopLeftProject">
-      <img :src=Logo alt="MealPlanner Logo" id="BarLogo"/>
+      <img :src="Logo" alt="MealPlanner Logo" id="BarLogo" />
       <h1>Meal Planner</h1>
     </div>
+
     <nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/meals">Meals</router-link> |
       <router-link to="/ingredients">Ingredients</router-link> |
       <router-link to="/recipes">Recipes</router-link> |
-      <router-link to="/shops">Shops</router-link>
+      <router-link to="/shops">Shops</router-link> |
+      <router-link to="/login" class="auth-link"><span class="account-icon">👤</span><span>Sign in / Log in</span></router-link> |
     </nav>
   </div>
-  <router-view/>
+
+  <router-view />
 </template>

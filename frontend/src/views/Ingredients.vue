@@ -28,21 +28,27 @@ onMounted(() => {
 })
 
 /* Returns an image based on the ingredient's name */
-const getImage = (name) => {
-  try {
-    return require(`@/assets/${name}.jpg`)
-  } catch (e) {
-    // Fallback image if the file doesn't exist
-    return require('@/assets/MPlogo.png')
-  }
-}
-
 /* Construct full URL for ingredient images */
 const getIngredientImageUrl = (ingredient) => {
-  if (!ingredient.IngredientPicture) return getImage(ingredient.Illustration || ingredient.Name);
-  // IngredientPicture contains just the filename, construct full URL
-  return `http://localhost:3000/uploads/${ingredient.IngredientPicture}`;
-}
+  if (ingredient.IngredientPicture) {
+    if (ingredient.IngredientPicture.startsWith('http')) {
+      return ingredient.IngredientPicture;
+    }
+
+    return `http://localhost:3000/uploads/${ingredient.IngredientPicture}`;
+  }
+
+
+  const baseName = ingredient.Illustration || ingredient.Name;
+  if (!baseName) {
+    return require('@/assets/MPlogo.png');
+  }
+
+  // si le nom n'a pas d'extension, on ajoute .jpg
+  const fileName = /\.\w+$/.test(baseName) ? baseName : `${baseName}.jpg`;
+  return `http://localhost:3000/uploads/${fileName}`;
+};
+
 
 /* ----------- LIKE / PASS SYSTEM ----------- */
 

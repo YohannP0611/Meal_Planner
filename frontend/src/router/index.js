@@ -29,6 +29,13 @@ const routes = [
     }
   },
   {
+  path: '/login',
+  name: 'login',
+  component: function () {
+    return import(/* webpackChunkName: "about" */ '../views/LoginView.vue')
+  }
+    } ,
+    {
     path: '/recipes',
     name: 'recipes',
     // route level code-splitting
