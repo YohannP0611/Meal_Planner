@@ -212,7 +212,7 @@ const deleteIngredient = async (id) => {
             <form @submit.prevent="submitForm">
           <div class="form-row">
             <label>Name</label>
-            <input v-model="form.Name" required />
+            <input v-model="form.Name" required maxlength="50" />
           </div>
 
                     <!-- Image upload -->
@@ -236,17 +236,17 @@ const deleteIngredient = async (id) => {
 
           <div class="form-row">
             <label>Calories</label>
-            <input v-model.number="form.Calories" type="number" min="0" step="any" />
+            <input v-model.number="form.Calories" type="number" min="0" max="2147483647" step="1" />
           </div>
 
           <div class="form-row">
             <label>Carbs</label>
-            <input v-model.number="form.Carbs" type="number" min="0" step="any" />
+            <input v-model.number="form.Carbs" type="number" min="0" max="9999999999999.99" step="0.01" />
           </div>
 
           <div class="form-row">
             <label>Protein</label>
-            <input v-model.number="form.Protein" type="number" min="0" step="any" />
+            <input v-model.number="form.Protein" type="number" min="0" max="9999999999999.99" step="0.01" />
           </div>
 
           <div class="actions">

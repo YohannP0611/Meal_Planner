@@ -132,7 +132,7 @@ const cancel = () => {
       <form @submit.prevent="submit">
         <div class="form-row">
           <label>Title</label>
-          <input v-model="form.Title" required />
+          <input v-model="form.Title" required maxlength="50" />
         </div>
 
         <div class="form-row dropzone" @dragover="onDragOver" @drop="onDrop">

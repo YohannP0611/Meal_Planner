@@ -1,5 +1,6 @@
 <script setup>
 import Logo from './assets/MPlogo.png'
+import LoginPopup from '@/components/LoginPopup.vue'
 import { ref, provide } from 'vue'
 import { getAllIngredients, getAllRecipes, getAllMealPlans } from '@/services/dataService'
 
@@ -26,6 +27,16 @@ provide('mealPlans', mealPlans)
       <router-link to="/recipes">Recipes</router-link> |
       <router-link to="/shops">Shops</router-link>
     </nav>
+    <div id="TopRightLogin">
+      <LoginPopup />
+    </div>
   </div>
   <router-view/>
 </template>
+
+<style>
+#TopRightLogin {
+  position: absolute;
+  right: 20px;
+}
+</style>

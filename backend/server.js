@@ -27,6 +27,8 @@ app.use('/uploads', express.static(uploadsPath));
 app.use('/uploads', express.static(assetsPath));
 
 // routes
+const { router: authRouter } = require("./routes/auth");
+app.use("/api/auth", authRouter);
 app.use("/api/ingredients", require("./routes/ingredients"));
 app.use("/api/recipes", require("./routes/recipes"));
 app.use('/api/upload', require('./routes/upload'));
