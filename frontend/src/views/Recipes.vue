@@ -151,7 +151,7 @@ const deleteRecipe = async (id) => {
         <button class="filter-pill disabled">...</button>
       </div>
 
-      <button class="add-recipe-btn" @click="openForm">
+      <button class="add-btn" @click="openForm">
         Add recipe
       </button>
     </div>
@@ -161,7 +161,7 @@ const deleteRecipe = async (id) => {
 
     <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
-      <div class="card recipe-card" v-for="r in sortedRecipes" :key="r.IDRecipes">
+      <div class="card recipe-card":class="{ passed: r.passed }" v-for="r in sortedRecipes" :key="r.IDRecipes">
         <div class="card-header">
           <button 
             @click="passToggle(r)"

@@ -46,20 +46,29 @@ const getIngredientImageUrl = (ingredient) => {
 
 /* ----------- LIKE / PASS SYSTEM ----------- */
 
-/* Toggle “like” unless the item is marked as passed */
+// toggle like for ONE recipe
 const likeToggle = (item) => {
-  if (!item.passed) {
-    item.liked = !item.liked
-  }
-}
-
-/* Toggle “pass” unless the item is marked as liked */
-const passToggle = (item) => {
   if (!item.liked) {
-    item.passed = !item.passed
+    // activate like and deactivate pass
+    item.liked = true
+    item.passed = false
+  } else {
+    // deactivate like
+    item.liked = false
+  }
+} 
+
+// toggle pass for ONE recipe
+const passToggle = (item) => {
+  if (!item.passed) {
+    // activate pass and deactivate like
+    item.passed = true
+    item.liked = false
+  } else {
+    // deactivate pass
+    item.passed = false
   }
 }
-
 
 /* ----------- POPUP FORM MANAGEMENT ----------- */
 
@@ -192,11 +201,11 @@ const deleteIngredient = async (id) => {
 <template>
   <div>
     <div class="about">
-      <button @click="openForm">Add ingredient</button>
+      <button class="add-btn" @click="openForm">Add ingredient</button>
     </div>
     
     <!-- POPUP FORM -->
-    <div v-if="showForm" class="card">
+    <div v-if="showForm" class="card card-add">
       <div class="modal">
             <h2>{{ editingId === null ? 'Add ingredient' : 'Edit ingredient' }}</h2>
 
@@ -249,7 +258,7 @@ const deleteIngredient = async (id) => {
     </div>
     
     <div class="grid">
-      <div class="card" v-for="i in ingredients" :key="i.IDIngredients">
+      <div class="card" :class="{ passed: i.passed }" v-for="i in ingredients" :key="i.IDIngredients">
         <div class="card-header">
           <button 
             @click="passToggle(i)"
