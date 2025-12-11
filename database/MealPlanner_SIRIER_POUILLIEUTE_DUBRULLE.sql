@@ -133,8 +133,6 @@ CREATE TABLE `UserRecipePreferences` (
   `IDAcc`      INT UNSIGNED NOT NULL,
   `IDRecipes`  INT UNSIGNED NOT NULL,
   `Status`     ENUM('liked', 'passed') NOT NULL,
-  `CreatedAt`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `UpdatedAt`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`IDAcc`, `IDRecipes`),
   CONSTRAINT `fk_userrecipepref_account`
     FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
@@ -149,8 +147,6 @@ CREATE TABLE `UserIngredientPreferences` (
   `IDAcc`          INT UNSIGNED NOT NULL,
   `IDIngredients`  INT UNSIGNED NOT NULL,
   `Status`         ENUM('liked', 'passed') NOT NULL,
-  `CreatedAt`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `UpdatedAt`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`IDAcc`, `IDIngredients`),
   CONSTRAINT `fk_useringredientpref_account`
     FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)

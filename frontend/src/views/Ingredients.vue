@@ -8,17 +8,51 @@ import {
 
 import { onMounted, ref } from 'vue'
 import { uploadFile } from '@/services/uploadService'
+import { getIngredientPreferences, setIngredientPreference, removeIngredientPreference } from '@/services/preferencesService'
+import { isLoggedIn as checkIsLoggedIn } from '@/services/authService'
 
 /* Reactive list of ingredients loaded from the backend */
 const ingredients = ref([])
+const preferences = ref({})
 
 /* Fetch ingredients from the API */
 const loadIngredients = async () => {
   try {
     ingredients.value = await fetchIngredients()
     console.log("Loaded ingredients:", ingredients.value)
+    
+    // Initialize liked and passed properties
+    ingredients.value.forEach(i => {
+      i.liked = false
+      i.passed = false
+    })
+    
+    // Load user preferences if logged in
+    if (checkIsLoggedIn()) {
+      await loadPreferences()
+    }
   } catch (err) {
     console.error(err)
+  }
+}
+
+const loadPreferences = async () => {
+  try {
+    const prefs = await getIngredientPreferences()
+    // Convert array to object map for easy lookup
+    preferences.value = {}
+    prefs.forEach(p => {
+      preferences.value[p.IDIngredients] = p.Status
+    })
+    
+    // Apply preferences to ingredients
+    ingredients.value.forEach(i => {
+      const status = preferences.value[i.IDIngredients]
+      i.liked = status === 'liked'
+      i.passed = status === 'passed'
+    })
+  } catch (err) {
+    console.error('Failed to load preferences', err)
   }
 }
 
@@ -46,27 +80,55 @@ const getIngredientImageUrl = (ingredient) => {
 
 /* ----------- LIKE / PASS SYSTEM ----------- */
 
-// toggle like for ONE recipe
-const likeToggle = (item) => {
-  if (!item.liked) {
-    // activate like and deactivate pass
-    item.liked = true
-    item.passed = false
-  } else {
-    // deactivate like
-    item.liked = false
+// toggle like for ONE ingredient
+const likeToggle = async (item) => {
+  if (!checkIsLoggedIn()) {
+    alert('Please login to like ingredients')
+    return
+  }
+
+  try {
+    if (!item.liked) {
+      // activate like and deactivate pass
+      await setIngredientPreference(item.IDIngredients, 'liked')
+      item.liked = true
+      item.passed = false
+      preferences.value[item.IDIngredients] = 'liked'
+    } else {
+      // deactivate like
+      await removeIngredientPreference(item.IDIngredients)
+      item.liked = false
+      delete preferences.value[item.IDIngredients]
+    }
+  } catch (err) {
+    console.error('Failed to update preference', err)
+    alert('Failed to update preference')
   }
 } 
 
-// toggle pass for ONE recipe
-const passToggle = (item) => {
-  if (!item.passed) {
-    // activate pass and deactivate like
-    item.passed = true
-    item.liked = false
-  } else {
-    // deactivate pass
-    item.passed = false
+// toggle pass for ONE ingredient
+const passToggle = async (item) => {
+  if (!checkIsLoggedIn()) {
+    alert('Please login to pass ingredients')
+    return
+  }
+
+  try {
+    if (!item.passed) {
+      // activate pass and deactivate like
+      await setIngredientPreference(item.IDIngredients, 'passed')
+      item.passed = true
+      item.liked = false
+      preferences.value[item.IDIngredients] = 'passed'
+    } else {
+      // deactivate pass
+      await removeIngredientPreference(item.IDIngredients)
+      item.passed = false
+      delete preferences.value[item.IDIngredients]
+    }
+  } catch (err) {
+    console.error('Failed to update preference', err)
+    alert('Failed to update preference')
   }
 }
 
@@ -258,7 +320,7 @@ const deleteIngredient = async (id) => {
     </div>
     
     <div class="grid">
-      <div class="card" :class="{ passed: i.passed }" v-for="i in ingredients" :key="i.IDIngredients">
+      <div class="card" :class="{ passed: i.passed, liked: i.liked }" v-for="i in ingredients" :key="i.IDIngredients">
         <div class="card-header">
           <button 
             @click="passToggle(i)"

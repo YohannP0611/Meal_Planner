@@ -549,3 +549,9 @@ button.active {
   opacity: 0.7;
   filter: grayscale(100%);
 }
+
+.card.liked {
+  border: 3px solid #e74c3c;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+  border-width: 2px;
+}

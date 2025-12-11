@@ -28,7 +28,13 @@ app.use('/uploads', express.static(assetsPath));
 
 // routes
 const { router: authRouter } = require("./routes/auth");
+const { router: preferencesRouter } = require("./routes/preferences");
+console.log('Registering routes...');
+console.log('Auth router:', typeof authRouter);
+console.log('Preferences router:', typeof preferencesRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/preferences", preferencesRouter);
+console.log('Preferences routes registered at /api/preferences');
 app.use("/api/ingredients", require("./routes/ingredients"));
 app.use("/api/recipes", require("./routes/recipes"));
 app.use('/api/upload', require('./routes/upload'));

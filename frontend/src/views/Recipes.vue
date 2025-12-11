@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
+import { getRecipePreferences, setRecipePreference, removeRecipePreference } from '@/services/preferencesService'
+import { isLoggedIn as checkIsLoggedIn } from '@/services/authService'
 
 const recipes = ref([])
+const preferences = ref({})
 
 // Construct full URL for recipe images from backend /uploads
 function getRecipeImageUrl(recipe) {
@@ -17,39 +20,93 @@ const loadRecipes = async () => {
   try {
     recipes.value = await getRecipes()
     console.log('Loaded recipes:', recipes.value)
+    
+    // Initialize liked and passed properties
     recipes.value.forEach(r => {
-      console.log(`Recipe: ${r.Title}, Illustration: "${r.Illustration}", Type: ${typeof r.Illustration}`)
+      r.liked = false
+      r.passed = false
     })
+    
+    // Load user preferences if logged in
+    if (checkIsLoggedIn()) {
+      await loadPreferences()
+    }
   } catch (err) {
     console.error('Failed to load recipes', err)
   }
 }
 
-
+const loadPreferences = async () => {
+  try {
+    const prefs = await getRecipePreferences()
+    // Convert array to object map for easy lookup: { recipeId: 'liked' | 'passed' }
+    preferences.value = {}
+    prefs.forEach(p => {
+      preferences.value[p.IDRecipes] = p.Status
+    })
+    
+    // Apply preferences to recipes
+    recipes.value.forEach(r => {
+      const status = preferences.value[r.IDRecipes]
+      r.liked = status === 'liked'
+      r.passed = status === 'passed'
+    })
+  } catch (err) {
+    console.error('Failed to load preferences', err)
+  }
+}
 
 onMounted(() => loadRecipes())
 
 // toggle like for ONE recipe
-const likeToggle = (item) => {
-  if (!item.liked) {
-    // activate like and deactivate pass
-    item.liked = true
-    item.passed = false
-  } else {
-    // deactivate like
-    item.liked = false
+const likeToggle = async (item) => {
+  if (!checkIsLoggedIn()) {
+    alert('Please login to like recipes')
+    return
+  }
+
+  try {
+    if (!item.liked) {
+      // activate like and deactivate pass
+      await setRecipePreference(item.IDRecipes, 'liked')
+      item.liked = true
+      item.passed = false
+      preferences.value[item.IDRecipes] = 'liked'
+    } else {
+      // deactivate like
+      await removeRecipePreference(item.IDRecipes)
+      item.liked = false
+      delete preferences.value[item.IDRecipes]
+    }
+  } catch (err) {
+    console.error('Failed to update preference', err)
+    alert('Failed to update preference')
   }
 } 
 
 // toggle pass for ONE recipe
-const passToggle = (item) => {
-  if (!item.passed) {
-    // activate pass and deactivate like
-    item.passed = true
-    item.liked = false
-  } else {
-    // deactivate pass
-    item.passed = false
+const passToggle = async (item) => {
+  if (!checkIsLoggedIn()) {
+    alert('Please login to pass recipes')
+    return
+  }
+
+  try {
+    if (!item.passed) {
+      // activate pass and deactivate like
+      await setRecipePreference(item.IDRecipes, 'passed')
+      item.passed = true
+      item.liked = false
+      preferences.value[item.IDRecipes] = 'passed'
+    } else {
+      // deactivate pass
+      await removeRecipePreference(item.IDRecipes)
+      item.passed = false
+      delete preferences.value[item.IDRecipes]
+    }
+  } catch (err) {
+    console.error('Failed to update preference', err)
+    alert('Failed to update preference')
   }
 }
 
@@ -59,16 +116,18 @@ const sortBy = ref('time') // 'time' | 'liked' | 'cost'
 
 const sortedRecipes = computed(() => {
   const list = Array.isArray(recipes) ? recipes : recipes.value
+  if (!list || list.length === 0) return []
+  
   const arr = [...list]
 
   if (sortBy.value === 'liked') {
-    return arr.sort((a, b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0))
+    return arr.sort((a, b) => ((b.liked || false) ? 1 : 0) - ((a.liked || false) ? 1 : 0))
   }
 
   if (sortBy.value === 'time') {
     // tri grossier : concat PrepTime+CookTime (OK pour la démo)
     return arr.sort((a, b) =>
-      (a.PrepTime + a.CookTime).localeCompare(b.PrepTime + b.CookTime)
+      ((a.PrepTime || '') + (a.CookTime || '')).localeCompare((b.PrepTime || '') + (b.CookTime || ''))
     )
   }
 
@@ -161,7 +220,7 @@ const deleteRecipe = async (id) => {
 
     <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
-      <div class="card recipe-card":class="{ passed: r.passed }" v-for="r in sortedRecipes" :key="r.IDRecipes">
+      <div class="card recipe-card":class="{ passed: r.passed, liked: r.liked }" v-for="r in sortedRecipes" :key="r.IDRecipes">
         <div class="card-header">
           <button 
             @click="passToggle(r)"

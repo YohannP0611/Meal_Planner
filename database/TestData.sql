@@ -7,6 +7,8 @@ USE meal_planner;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Optional: clear existing data
+TRUNCATE TABLE `UserRecipePreferences`;
+TRUNCATE TABLE `UserIngredientPreferences`;
 TRUNCATE TABLE `Connects`;
 TRUNCATE TABLE `Needs`;
 TRUNCATE TABLE `Sells`;
@@ -162,3 +164,29 @@ VALUES
 
 (3, 3, '2025-11-17', 'dinner'),    -- Charlie ate Green Salad
 (1, 3, '2025-11-19', 'lunch');     -- Charlie ate Pasta al Pomodoro
+
+-- ============ USER PREFERENCES ============
+
+-- Alice's preferences
+INSERT INTO `UserRecipePreferences` (IDAcc, IDRecipes, Status)
+VALUES
+(1, 1, 'liked'),   -- Alice likes Pasta al Pomodoro
+(1, 3, 'liked'),   -- Alice likes Green Salad
+(1, 2, 'passed');  -- Alice passed Chicken & Rice Bowl
+
+INSERT INTO `UserIngredientPreferences` (IDAcc, IDIngredients, Status)
+VALUES
+(1, 1, 'liked'),   -- Alice likes Tomato
+(1, 8, 'liked'),   -- Alice likes Lettuce
+(1, 6, 'passed');  -- Alice passed Chicken Breast
+
+-- Bob's preferences
+INSERT INTO `UserRecipePreferences` (IDAcc, IDRecipes, Status)
+VALUES
+(2, 2, 'liked'),   -- Bob likes Chicken & Rice Bowl
+(2, 5, 'liked');   -- Bob likes Garlic Bread
+
+INSERT INTO `UserIngredientPreferences` (IDAcc, IDIngredients, Status)
+VALUES
+(2, 6, 'liked'),   -- Bob likes Chicken Breast
+(2, 7, 'liked');   -- Bob likes Rice
