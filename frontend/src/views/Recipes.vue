@@ -303,7 +303,7 @@ onUnmounted(() => {
 
     <!-- MODAL PLANIFICATION --><!-- MODAL : ajout au planning -->
     <div v-if="showPlanModal" class="modal-backdrop">
-      <div class="modal">
+      <div class="card card-plan">
         <h3>Add "{{ selectedRecipeForPlanning?.Title }}" to your planning</h3>
 
         <label>
@@ -322,7 +322,7 @@ onUnmounted(() => {
 
         <p v-if="planningError" class="error">{{ planningError }}</p>
 
-        <div class="modal-actions">
+        <div class="actions">
           <button type="button" @click="closePlanningModal">Cancel</button>
           <button type="button" @click="savePlanning" :disabled="isSavingPlanning">
             {{ isSavingPlanning ? 'Saving…' : 'Save' }}
@@ -361,11 +361,8 @@ onUnmounted(() => {
         <div class="CRUD" v-if="canEdit(r)">
           <button @click="deleteRecipe(r.IDRecipes)">🗑️</button>
           <button @click="openEditForm(r)">✏️</button>
+          <button class="plan-btn" @click="openPlanningModal(r)">🗓️</button>
         </div>
-
-        <button class="plan-btn" @click="openPlanningModal(r)">
-          Add to my meals
-        </button>
       </div>
     </div>
   </div>

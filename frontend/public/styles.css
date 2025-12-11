@@ -555,3 +555,11 @@ button.active {
   box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
   border-width: 2px;
 }
+
+.card-plan {
+  text-align: center;
+}
+
+.card-plan h3{
+  margin: 10px;
+}
