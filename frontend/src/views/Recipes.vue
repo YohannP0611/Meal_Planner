@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
+import { addMealToPlanning } from '@/services/planningService'
 import { getRecipePreferences, setRecipePreference, removeRecipePreference } from '@/services/preferencesService'
 import { isLoggedIn as checkIsLoggedIn, getStoredUser } from '@/services/authService'
 
@@ -8,6 +9,66 @@ const recipes = ref([])
 const preferences = ref({})
 const currentUser = ref(null)
 let authCheckInterval = null
+
+
+
+// --------- ADD TO MEALS (planning) ---------
+const currentUserId = 1
+
+const showPlanModal = ref(false)
+const selectedRecipeForPlanning = ref(null)
+const selectedMealDate = ref('')
+const selectedMealType = ref('Breakfast')
+const isSavingPlanning = ref(false)
+const planningError = ref(null)
+
+const mealTypes = [
+  { value: 'breakfast', label: 'Breakfast' },
+  { value: 'lunch', label: 'Lunch' },
+  { value: 'dinner', label: 'Dinner' }
+]
+
+
+function openPlanningModal(recipe) {
+  selectedRecipeForPlanning.value = recipe
+  selectedMealDate.value = ''
+  selectedMealType.value = 'Breakfast'
+  planningError.value = null
+  showPlanModal.value = true
+}
+
+function closePlanningModal() {
+  showPlanModal.value = false
+}
+
+async function savePlanning() {
+  if (!selectedMealDate.value) {
+    planningError.value = 'Please select a date.'
+    return
+  }
+  if (!selectedRecipeForPlanning.value) return
+
+  try {
+    isSavingPlanning.value = true
+    planningError.value = null
+
+    await addMealToPlanning({
+      accountId: currentUserId,
+      recipeId: selectedRecipeForPlanning.value.IDRecipes,
+      dateMeal: selectedMealDate.value, // format HTML : YYYY-MM-DD
+      mealType: selectedMealType.value
+    })
+
+    showPlanModal.value = false
+  } catch (err) {
+    console.error(err)
+    planningError.value = 'Could not save this meal in your planning.'
+  } finally {
+    isSavingPlanning.value = false
+  }
+}
+// --------- FIN PARTIE ADD TO MEALS ---------
+
 
 // Construct full URL for recipe images from backend /uploads
 function getRecipeImageUrl(recipe) {
@@ -240,6 +301,36 @@ onUnmounted(() => {
     <!-- POPUP FORM -->
     <RecipeForm v-if="showForm" :initialRecipe="editingRecipe" @saved="onSaved" @close="closeForm" />
 
+    <!-- MODAL PLANIFICATION --><!-- MODAL : ajout au planning -->
+    <div v-if="showPlanModal" class="modal-backdrop">
+      <div class="modal">
+        <h3>Add "{{ selectedRecipeForPlanning?.Title }}" to your planning</h3>
+
+        <label>
+          Date:
+          <input type="date" v-model="selectedMealDate" />
+        </label>
+
+        <label>
+          Meal:
+          <select v-model="selectedMealType">
+            <option v-for="t in mealTypes" :key="t.value" :value="t.value">
+              {{ t.label }}
+            </option>
+          </select>
+        </label>
+
+        <p v-if="planningError" class="error">{{ planningError }}</p>
+
+        <div class="modal-actions">
+          <button type="button" @click="closePlanningModal">Cancel</button>
+          <button type="button" @click="savePlanning" :disabled="isSavingPlanning">
+            {{ isSavingPlanning ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
       <div class="card recipe-card":class="{ passed: r.passed, liked: r.liked }" v-for="r in sortedRecipes" :key="r.IDRecipes">
@@ -271,6 +362,10 @@ onUnmounted(() => {
           <button @click="deleteRecipe(r.IDRecipes)">🗑️</button>
           <button @click="openEditForm(r)">✏️</button>
         </div>
+
+        <button class="plan-btn" @click="openPlanningModal(r)">
+          Add to my meals
+        </button>
       </div>
     </div>
   </div>

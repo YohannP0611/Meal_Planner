@@ -39,5 +39,8 @@ app.use("/api/ingredients", require("./routes/ingredients"));
 app.use("/api/recipes", require("./routes/recipes"));
 app.use('/api/upload', require('./routes/upload'));
 app.use("/api/shops", require("./routes/shops"));
+app.use("/api/connects", require("./routes/connects"));
+app.use("/api/meals", require("./routes/meals"));
+
 
 app.listen(3000, () => console.log("Backend running on port 3000"));

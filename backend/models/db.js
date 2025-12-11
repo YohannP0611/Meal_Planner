@@ -1,11 +1,13 @@
+// models/db.js  (or db.js if that's the one your routes use)
 require("dotenv").config();
 const mysql = require("mysql2");
 
+// Classic callback-based connection (no promise)
 const db = mysql.createConnection({
   host: process.env.DB_HOST, 
-  user: process.env.DB_USER ,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE ,
+  database: process.env.DB_DATABASE,
   port: process.env.DB_PORT 
 });
 
