@@ -6,14 +6,16 @@ import {
   deleteIngredient as apiDeleteIngredient 
 } from '@/services/ingredientsService'
 
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue'
 import { uploadFile } from '@/services/uploadService'
 import { getIngredientPreferences, setIngredientPreference, removeIngredientPreference } from '@/services/preferencesService'
-import { isLoggedIn as checkIsLoggedIn } from '@/services/authService'
+import { isLoggedIn as checkIsLoggedIn, getStoredUser } from '@/services/authService'
 
 /* Reactive list of ingredients loaded from the backend */
 const ingredients = ref([])
 const preferences = ref({})
+const currentUser = ref(null)
+let authCheckInterval = null
 
 /* Fetch ingredients from the API */
 const loadIngredients = async () => {
@@ -27,8 +29,9 @@ const loadIngredients = async () => {
       i.passed = false
     })
     
-    // Load user preferences if logged in
+    // Load current user and preferences if logged in
     if (checkIsLoggedIn()) {
+      currentUser.value = getStoredUser()
       await loadPreferences()
     }
   } catch (err) {
@@ -59,6 +62,15 @@ const loadPreferences = async () => {
 /* Load ingredients when the component is mounted */
 onMounted(() => {
   loadIngredients()
+  
+  // Check for login/logout changes periodically
+  authCheckInterval = setInterval(() => {
+    const user = getStoredUser()
+    const userChanged = JSON.stringify(user) !== JSON.stringify(currentUser.value)
+    if (userChanged) {
+      currentUser.value = user
+    }
+  }, 500)
 })
 
 /* Returns an image based on the ingredient's name */
@@ -194,6 +206,14 @@ const closeForm = () => {
 
 const imagePreview = ref(null)
 
+// Check if current user can edit an ingredient
+const canEdit = (ingredient) => {
+  if (!currentUser.value) return false // Not logged in
+  if (currentUser.value.role === 'admin') return true // Admin can edit everything
+  if (!ingredient.IDAcc) return false // No owner, not editable by regular users
+  return currentUser.value.id === ingredient.IDAcc // Owner can edit
+}
+
 const handleFiles = async (files) => {
   if (!files || !files.length) return
   const file = files[0]
@@ -232,11 +252,11 @@ const submitForm = async () => {
       console.log("Updated ingredient:", form.value)
     }
 
-    // Refresh the list after saving
-    await loadIngredients()
-    
     showForm.value = false
     editingId.value = null
+    
+    // Refresh the list after saving to get fresh IDAcc values
+    await loadIngredients()
   } catch (err) {
     console.error("Error:", err)
     alert("Failed to save ingredient")
@@ -258,12 +278,16 @@ const deleteIngredient = async (id) => {
     alert("Failed to delete ingredient")
   }
 }
+
+onUnmounted(() => {
+  if (authCheckInterval) clearInterval(authCheckInterval)
+})
 </script>
 
 <template>
   <div>
     <div class="about">
-      <button class="add-btn" @click="openForm">Add ingredient</button>
+      <button v-if="currentUser" class="add-btn" @click="openForm">Add ingredient</button>
     </div>
     
     <!-- POPUP FORM -->
@@ -346,7 +370,7 @@ const deleteIngredient = async (id) => {
         <p><strong>Carbs:</strong> {{ i.Carbs }} g</p>
         <p><strong>Protein:</strong> {{ i.Protein }} g</p>
 
-        <div class="CRUD">
+        <div class="CRUD" v-if="canEdit(i)">
           <button @click="deleteIngredient(i.IDIngredients)">🗑️</button>
           <button @click="openEditForm(i)">✏️</button>
         </div>

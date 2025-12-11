@@ -4,10 +4,9 @@ const db = require("../models/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Secret key for JWT (should be in environment variables in production)
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-// REGISTER - Create new account
+// REGISTER
 router.post("/register", async (req, res) => {
   const { email, password, displayName } = req.body;
 
@@ -16,33 +15,20 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    // Check if email already exists
     db.query("SELECT * FROM Account WHERE Email = ?", [email], async (err, rows) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
+      if (err) return res.status(500).json({ error: "Database error" });
+      if (rows.length > 0) return res.status(409).json({ error: "Email already exists" });
 
-      if (rows.length > 0) {
-        return res.status(409).json({ error: "Email already exists" });
-      }
-
-      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert new account
       db.query(
-        "INSERT INTO Account (Email, Password, DisplayName) VALUES (?, ?, ?)",
+        "INSERT INTO Account (Email, Password, DisplayName, Role) VALUES (?, ?, ?, 'user')",
         [email, hashedPassword, displayName],
         (err, result) => {
-          if (err) {
-            console.error("Error creating account:", err);
-            return res.status(500).json({ error: "Failed to create account" });
-          }
+          if (err) return res.status(500).json({ error: "Failed to create account" });
 
-          // Generate JWT token
           const token = jwt.sign(
-            { id: result.insertId, email, displayName },
+            { id: result.insertId, email, displayName, role: 'user' },
             JWT_SECRET,
             { expiresIn: "7d" }
           );
@@ -50,22 +36,17 @@ router.post("/register", async (req, res) => {
           res.status(201).json({
             message: "Account created successfully",
             token,
-            user: {
-              id: result.insertId,
-              email,
-              displayName
-            }
+            user: { id: result.insertId, email, displayName, role: 'user' }
           });
         }
       );
     });
   } catch (err) {
-    console.error("Error in registration:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// LOGIN - Authenticate user
+// LOGIN
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -74,28 +55,17 @@ router.post("/login", (req, res) => {
   }
 
   db.query("SELECT * FROM Account WHERE Email = ?", [email], async (err, rows) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (rows.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+    if (err) return res.status(500).json({ error: "Database error" });
+    if (rows.length === 0) return res.status(401).json({ error: "Invalid email or password" });
 
     const user = rows[0];
 
     try {
-      // Compare password with hash
       const passwordMatch = await bcrypt.compare(password, user.Password);
+      if (!passwordMatch) return res.status(401).json({ error: "Invalid email or password" });
 
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid email or password" });
-      }
-
-      // Generate JWT token
       const token = jwt.sign(
-        { id: user.IDAcc, email: user.Email, displayName: user.DisplayName },
+        { id: user.IDAcc, email: user.Email, displayName: user.DisplayName, role: user.Role },
         JWT_SECRET,
         { expiresIn: "7d" }
       );
@@ -106,44 +76,36 @@ router.post("/login", (req, res) => {
         user: {
           id: user.IDAcc,
           email: user.Email,
-          displayName: user.DisplayName
+          displayName: user.DisplayName,
+          role: user.Role
         }
       });
     } catch (err) {
-      console.error("Error comparing passwords:", err);
       res.status(500).json({ error: "Server error" });
     }
   });
 });
 
-// GET current user info (requires valid token)
+// GET current user info
 router.get("/me", verifyToken, (req, res) => {
-  db.query("SELECT IDAcc, Email, DisplayName FROM Account WHERE IDAcc = ?", [req.user.id], (err, rows) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
+  db.query("SELECT IDAcc, Email, DisplayName, Role FROM Account WHERE IDAcc = ?", [req.user.id], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    if (rows.length === 0) return res.status(404).json({ error: "User not found" });
 
     const user = rows[0];
     res.json({
       id: user.IDAcc,
       email: user.Email,
-      displayName: user.DisplayName
+      displayName: user.DisplayName,
+      role: user.Role
     });
   });
 });
 
 // Middleware to verify JWT token
 function verifyToken(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({ error: "No token provided" });
-  }
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -154,5 +116,4 @@ function verifyToken(req, res, next) {
   }
 }
 
-// Export both router and middleware
 module.exports = { router, verifyToken };

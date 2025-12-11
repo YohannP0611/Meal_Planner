@@ -1,3 +1,5 @@
+import { getToken } from './authService';
+
 const API_URL = "http://localhost:3000/api/recipes";
 
 export async function getRecipes() {
@@ -21,9 +23,13 @@ export async function createRecipe(recipe) {
   const payload = { ...recipe };
   if (payload.ImageUrl !== undefined) delete payload.ImageUrl;
 
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload)
   });
   if (!res.ok) {
@@ -39,9 +45,13 @@ export async function updateRecipe(id, recipe) {
   const payload = { ...recipe };
   if (payload.ImageUrl !== undefined) delete payload.ImageUrl;
 
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload)
   });
   if (!res.ok) throw new Error('Failed to update recipe');
@@ -50,7 +60,11 @@ export async function updateRecipe(id, recipe) {
 }
 
 export async function deleteRecipe(id) {
-  const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE', headers });
   if (!res.ok) throw new Error('Failed to delete recipe');
   return true;
 }

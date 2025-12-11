@@ -6,16 +6,16 @@ USE meal_planner;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Optional: clear existing data
+-- Optional: clear existing data (reverse dependency order)
 TRUNCATE TABLE `UserRecipePreferences`;
 TRUNCATE TABLE `UserIngredientPreferences`;
 TRUNCATE TABLE `Connects`;
 TRUNCATE TABLE `Needs`;
 TRUNCATE TABLE `Sells`;
-TRUNCATE TABLE `Account`;
 TRUNCATE TABLE `Recipes`;
 TRUNCATE TABLE `Ingredients`;
 TRUNCATE TABLE `Shop`;
+TRUNCATE TABLE `Account`;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -83,13 +83,15 @@ VALUES
 
 -- ============ ACCOUNTS ============
 
-INSERT INTO `Account` (IDAcc, Email, Password, DisplayName)
+INSERT INTO `Account` (IDAcc, Email, Password, DisplayName, Role)
 VALUES
-(1, 'alice@example.com',   '$2b$10$alicehashpassword.....................', 'Alice'),
-(2, 'bob@example.com',     '$2b$10$bobhashpassword.......................',   'Bob'),
-(3, 'charlie@example.com', '$2b$10$charliehashpassword...................', 'Charlie');
+(1, 'alice@example.com',   '$2b$10$alicehashpassword.....................', 'Alice', 'user'),
+(2, 'bob@example.com',     '$2b$10$bobhashpassword.......................',   'Bob', 'user'),
+(3, 'charlie@example.com', '$2b$10$charliehashpassword...................', 'Charlie', 'user'),
+(4, 'admin@mealplanner.com', '$2b$10$a0X6CitPIjZqe1OTriWcweskamQT0wf90qQhPFZz0BJrB7y7TFywG', 'Admin', 'admin');
 
--- For a real app you’d store real bcrypt hashes; here they’re placeholders.
+-- For a real app you'd store real bcrypt hashes; here they're placeholders.
+-- To create a real admin password, use: node -e "require('bcrypt').hash('yourpassword', 10, (e,h) => console.log(h))"
 
 -- ============ SELLS (Shop <-> Ingredients) ============
 

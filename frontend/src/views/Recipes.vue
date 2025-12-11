@@ -1,11 +1,13 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { getRecipes, deleteRecipe as apiDeleteRecipe } from '@/services/recipesService'
 import { getRecipePreferences, setRecipePreference, removeRecipePreference } from '@/services/preferencesService'
-import { isLoggedIn as checkIsLoggedIn } from '@/services/authService'
+import { isLoggedIn as checkIsLoggedIn, getStoredUser } from '@/services/authService'
 
 const recipes = ref([])
 const preferences = ref({})
+const currentUser = ref(null)
+let authCheckInterval = null
 
 // Construct full URL for recipe images from backend /uploads
 function getRecipeImageUrl(recipe) {
@@ -27,8 +29,9 @@ const loadRecipes = async () => {
       r.passed = false
     })
     
-    // Load user preferences if logged in
+    // Load current user and preferences if logged in
     if (checkIsLoggedIn()) {
+      currentUser.value = getStoredUser()
       await loadPreferences()
     }
   } catch (err) {
@@ -56,7 +59,18 @@ const loadPreferences = async () => {
   }
 }
 
-onMounted(() => loadRecipes())
+onMounted(() => {
+  loadRecipes()
+  
+  // Check for login/logout changes periodically
+  authCheckInterval = setInterval(() => {
+    const user = getStoredUser()
+    const userChanged = JSON.stringify(user) !== JSON.stringify(currentUser.value)
+    if (userChanged) {
+      currentUser.value = user
+    }
+  }, 500)
+})
 
 // toggle like for ONE recipe
 const likeToggle = async (item) => {
@@ -142,6 +156,14 @@ import RecipeForm from '@/components/RecipeForm.vue'
 const showForm = ref(false)
 const editingRecipe = ref(null)
 
+// Check if current user can edit a recipe
+const canEdit = (recipe) => {
+  if (!currentUser.value) return false // Not logged in
+  if (currentUser.value.role === 'admin') return true // Admin can edit everything
+  if (!recipe.IDAcc) return false // No owner, not editable by regular users
+  return currentUser.value.id === recipe.IDAcc // Owner can edit
+}
+
 const openForm = () => {
   editingRecipe.value = null
   showForm.value = true
@@ -157,14 +179,10 @@ const closeForm = () => {
   showForm.value = false
 }
 
-const onSaved = ({ action, recipe }) => {
-  if (action === 'create') {
-    recipes.value.push(recipe)
-  } else if (action === 'update') {
-    const idx = recipes.value.findIndex(r => r.IDRecipes === recipe.IDRecipes)
-    if (idx !== -1) recipes.value.splice(idx, 1, recipe)
-  }
+const onSaved = async ({ action, recipe }) => {
   closeForm()
+  // Reload recipes to get fresh IDAcc values from backend
+  await loadRecipes()
 }
 
 const deleteRecipe = async (id) => {
@@ -177,6 +195,10 @@ const deleteRecipe = async (id) => {
     alert('Failed to delete recipe')
   }
 }
+
+onUnmounted(() => {
+  if (authCheckInterval) clearInterval(authCheckInterval)
+})
 </script>
 
 <template>
@@ -210,7 +232,7 @@ const deleteRecipe = async (id) => {
         <button class="filter-pill disabled">...</button>
       </div>
 
-      <button class="add-btn" @click="openForm">
+      <button v-if="currentUser" class="add-btn" @click="openForm">
         Add recipe
       </button>
     </div>
@@ -245,7 +267,7 @@ const deleteRecipe = async (id) => {
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
         <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>
 
-        <div class="CRUD">
+        <div class="CRUD" v-if="canEdit(r)">
           <button @click="deleteRecipe(r.IDRecipes)">🗑️</button>
           <button @click="openEditForm(r)">✏️</button>
         </div>

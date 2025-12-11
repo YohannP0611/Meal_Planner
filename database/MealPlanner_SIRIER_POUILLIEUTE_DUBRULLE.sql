@@ -9,18 +9,28 @@ CREATE DATABASE IF NOT EXISTS meal_planner
   DEFAULT COLLATE utf8mb4_0900_ai_ci;
 USE meal_planner;
 
--- Drop in dependency order
+-- Drop in dependency order (reverse of creation)
 DROP TABLE IF EXISTS `UserRecipePreferences`;
 DROP TABLE IF EXISTS `UserIngredientPreferences`;
 DROP TABLE IF EXISTS `Connects`;
 DROP TABLE IF EXISTS `Needs`;
 DROP TABLE IF EXISTS `Sells`;
-DROP TABLE IF EXISTS `Account`;
 DROP TABLE IF EXISTS `Recipes`;
 DROP TABLE IF EXISTS `Ingredients`;
 DROP TABLE IF EXISTS `Shop`;
+DROP TABLE IF EXISTS `Account`;
 
 -- ============ ENTITIES ============
+
+CREATE TABLE `Account` (
+  `IDAcc`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `Email`       VARCHAR(50)  NOT NULL,
+  `Password`    VARCHAR(60)  NOT NULL,
+  `DisplayName` VARCHAR(50)  NOT NULL,
+  `Role`        ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  PRIMARY KEY (`IDAcc`),
+  UNIQUE KEY `uq_account_email` (`Email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `Shop` (
   `IDShop`    INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -47,8 +57,12 @@ CREATE TABLE `Ingredients` (
   `Salt`          DECIMAL(15,2),
   `Sugar`         DECIMAL(15,2),
   `IngredientPicture` VARCHAR(255),
+  `IDAcc`         INT UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`IDIngredients`),
   UNIQUE KEY `uq_ingredients_name` (`Name`),
+  CONSTRAINT `fk_ingredients_account`
+    FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
   CHECK (`Calories` IS NULL OR `Calories` >= 0),
   CHECK (`Fat`     IS NULL OR `Fat`     >= 0),
   CHECK (`Carbs`   IS NULL OR `Carbs`   >= 0),
@@ -68,17 +82,12 @@ CREATE TABLE `Recipes` (
   `Difficulty`  ENUM('easy','medium','hard') NOT NULL DEFAULT 'easy',
   `Steps`       TEXT         NOT NULL,
   `Illustration` VARCHAR(255),
+  `IDAcc`       INT UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`IDRecipes`),
+  CONSTRAINT `fk_recipes_account`
+    FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
   CHECK (`Servings` > 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `Account` (
-  `IDAcc`       INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `Email`       VARCHAR(50)  NOT NULL,
-  `Password`    VARCHAR(60)  NOT NULL,
-  `DisplayName` VARCHAR(50)  NOT NULL,
-  PRIMARY KEY (`IDAcc`),
-  UNIQUE KEY `uq_account_email` (`Email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============ CONNECTORS ============

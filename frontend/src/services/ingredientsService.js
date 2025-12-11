@@ -1,3 +1,5 @@
+import { getToken } from './authService';
+
 const API_URL = "http://localhost:3000/api/ingredients";
 
 // GET all ingredients
@@ -24,9 +26,13 @@ export async function getIngredient(id) {
 export async function createIngredient(ingredient) {
   // ingredient should have keys matching your backend / DB
   // e.g. { Name: "...", Calories: 123, ... }
+  const headers = { "Content-Type": "application/json" };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(ingredient),
   });
 
@@ -36,9 +42,13 @@ export async function createIngredient(ingredient) {
 
 // PUT (update) an ingredient
 export async function updateIngredient(id, ingredient) {
+  const headers = { "Content-Type": "application/json" };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(ingredient),
   });
 
@@ -59,8 +69,13 @@ function normalize(item) {
 
 // DELETE an ingredient
 export async function deleteIngredient(id) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
+    headers,
   });
 
   if (!res.ok) throw new Error("Failed to delete ingredient");
