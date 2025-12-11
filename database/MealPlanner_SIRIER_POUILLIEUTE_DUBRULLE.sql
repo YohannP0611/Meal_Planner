@@ -10,6 +10,8 @@ CREATE DATABASE IF NOT EXISTS meal_planner
 USE meal_planner;
 
 -- Drop in dependency order
+DROP TABLE IF EXISTS `UserRecipePreferences`;
+DROP TABLE IF EXISTS `UserIngredientPreferences`;
 DROP TABLE IF EXISTS `Connects`;
 DROP TABLE IF EXISTS `Needs`;
 DROP TABLE IF EXISTS `Sells`;
@@ -123,4 +125,38 @@ CREATE TABLE `Connects` (
   CONSTRAINT `fk_connects_account`
     FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
     ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============ USER PREFERENCES ============
+
+CREATE TABLE `UserRecipePreferences` (
+  `IDAcc`      INT UNSIGNED NOT NULL,
+  `IDRecipes`  INT UNSIGNED NOT NULL,
+  `Status`     ENUM('liked', 'passed') NOT NULL,
+  `CreatedAt`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`IDAcc`, `IDRecipes`),
+  CONSTRAINT `fk_userrecipepref_account`
+    FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_userrecipepref_recipes`
+    FOREIGN KEY (`IDRecipes`) REFERENCES `Recipes` (`IDRecipes`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_userrecipepref_status (`Status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `UserIngredientPreferences` (
+  `IDAcc`          INT UNSIGNED NOT NULL,
+  `IDIngredients`  INT UNSIGNED NOT NULL,
+  `Status`         ENUM('liked', 'passed') NOT NULL,
+  `CreatedAt`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`IDAcc`, `IDIngredients`),
+  CONSTRAINT `fk_useringredientpref_account`
+    FOREIGN KEY (`IDAcc`) REFERENCES `Account` (`IDAcc`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_useringredientpref_ingredients`
+    FOREIGN KEY (`IDIngredients`) REFERENCES `Ingredients` (`IDIngredients`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_useringredientpref_status (`Status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

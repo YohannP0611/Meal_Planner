@@ -2,7 +2,7 @@
 import Logo from './assets/MPlogo.png'
 import LoginPopup from '@/components/LoginPopup.vue'
 import { ref, provide } from 'vue'
-import { getAllIngredients, getAllRecipes, getAllMealPlans } from '@/services/dataService'
+import { getAllIngredients, getAllRecipes, getAllMealPlans } from '@/services/fakeDataLoader'
 
 const ingredients = ref(getAllIngredients())
 const recipes = ref(getAllRecipes())
