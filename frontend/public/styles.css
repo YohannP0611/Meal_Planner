@@ -10,16 +10,19 @@
   background-color: #cbc9c8;
   margin-bottom: 4%;
 }
-#HeaderContainer nav{
+#MainNav {
   align-items: center;
   display: flex;
   justify-content: center;
+
   position: absolute;
-  left: 50%;
+  left: 52%;                /* was 50%, shifted slightly left */
   transform: translateX(-50%);
-  gap: 5%;
-  font-size: large;
+
+  gap: 2.5rem;              /* wider spacing */
+  font-size: 1.2rem;        /* bigger text */
 }
+
 
 #BarLogo{
     width: 8%;
@@ -517,4 +520,121 @@ button.active {
     padding-left: 0;
     padding-top: 2rem;
   }
+}
+
+/* ===== NAVBAR AUTH LINK ===== */
+
+#HeaderContainer nav .auth-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#HeaderContainer nav .auth-link .account-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* optional: slight hover effect */
+#HeaderContainer nav .auth-link:hover {
+  color: #ff7f32;       
+}
+/* ===== LOGIN PAGE ===== */
+
+.auth-page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 24px 28px;
+}
+
+.auth-card h2 {
+  margin-bottom: 16px;
+  font-size: 26px;
+  text-align: center;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.auth-field label {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.auth-field input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  font-size: 15px;
+}
+
+.auth-error {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 999px;
+  border: 2px solid #000;
+  background-color: #ffa346;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.auth-button:hover {
+  background-color: #d98418;
+}
+/* right-side auth link in header */
+#AuthNav {
+  margin-left: auto;
+  margin-right: 60px;       /* more space */
+  display: flex;
+  align-items: center;
+}
+
+
+#AuthNav .auth-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  font-size: 1.2rem; 
+  text-decoration: none;
+  color: #2c3e50;
+}
+
+
+#AuthNav .auth-link:hover {
+  color: #ff7f32;
+}
+
+#AuthNav .account-icon {
+  font-size: 1.3rem;        
+}
+
+
+/* small separators between main nav links */
+.nav-separator {
+  margin: 0 0.5rem;
 }
