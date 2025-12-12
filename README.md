@@ -72,46 +72,64 @@ Meal_Planner/
 
 ```mermaid
 gantt
-    dateFormat  YYYY-MM-DD
-    title       Meal Planner – Project Roadmap
+    title Meal Planner – Final Gantt (UML → Implementation)
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+    todayMarker off
 
-    section Analysis & Design
-    Concept definition and user stories           :done, concept, 2025-08-29, 7d
-    Data model and UML diagrams                   :done, uml, 2025-09-05, 21d
+    section Project setup
+    Repo init + structure + README base (Yohann)                     :done, s1, 2025-09-25, 2d
+    Vue project initialization (Matthieu)                            :done, s2, 2025-10-17, 2d
+    Front/Back skeleton + base index.html (Valentin)                 :done, s3, 2025-10-17, 2d
+    Repository re-organization + README cleanup (Yohann)             :done, s4, 2025-10-17, 2d
 
-    section Database & Backend Setup
-    SQL schema (tables + seed)                    :db_schema, 2025-09-26, 21d
+    section UML / Documentation
+    Initial use cases + planned Gantt in report (Matthieu)           :done, u1, 2025-10-31, 2d
+    Upload UML package + diagrams (Valentin)                         :done, u2, 2025-11-20, 2d
+    Roadmap Gantt added to README (Valentin)                         :done, u3, 2025-11-20, 1d
+    README updates (Yohann)                                          :done, u4, 2025-11-20, 1d
+    Replace latest PDF report version (Yohann & Valentin)            :done, u5, 2025-11-28, 1d
+    Documentation refresh / file uploads (Yohann & Valentin)         :done, u6, 2025-12-05, 1d
 
-    section Course Checkpoints
-    Checkpoint OCT17 (repo + diagrams + SQL + basic Vue)   :crit, cp_oct17, 2025-10-17, 1d
-    Checkpoint OCT31 (3 list pages frontend)               :crit, cp_oct31, 2025-10-31, 1d
-    Checkpoint NOV21 (fully working frontend)              :crit, cp_nov21, 2025-11-21, 1d
-    Checkpoint NOV28 (serverside list controllers)         :crit, cp_nov28, 2025-11-28, 1d
-    Checkpoint DEC05 (full serverside CRUD)                :crit, cp_dec05, 2025-12-05, 1d
-    Final demo DEC12                                       :crit, cp_dec12, 2025-12-12, 1d
+    section Mock data & early web integration
+    Fake JSON data + integration in website (Matthieu)               :done, m1, 2025-10-31, 3d
+    Add JSON server for mock API + data handling (Matthieu)          :done, m2, 2025-11-21, 2d
 
-    section Frontend Development
-    Frontend setup (framework + routing)          :front_setup, 2025-10-10, 7d
-    List pages (recipes, ingredients, shops)      :front_lists, 2025-10-17, 14d
-    CRUD UI for recipes and ingredients           :front_crud, 2025-10-31, 21d
-    Authentication UI                             :front_auth, 2025-11-21, 7d
-    Responsive design and cleanup                 :front_polish, 2025-12-05, 7d
+    section Backend foundation
+    Backend development started (Matthieu)                           :done, b1, 2025-11-19, 2d
+    Fix run-blocking lines + merge preparation (Matthieu)            :done, b2, 2025-11-27, 2d
+    Merge branches (backend/develop) (Matthieu)                      :done, b3, 2025-11-27, 1d
+    Move DB config to .env (Yohann & Valentin)                       :done, b4, 2025-11-28, 1d
 
-    section Backend Development
-    API CRUD for recipes and ingredients          :api_crud_main, 2025-11-10, 21d
-    API for meal planning (Connects)              :api_planning, 2025-11-24, 14d
-    Serverside list controllers                   :api_lists, 2025-12-08, 7d
-    Full serverside CRUD controllers              :api_crud_full, 2025-12-15, 7d
-    Backend buffer (fixes + refactoring)          :api_buffer, 2025-12-22, 7d
+    section Shops / Navigation / UI
+    Shops page + CSS layout improvements (Yohann & Valentin)         :done, ui1, 2025-11-28, 2d
+    Navbar improvements (Yohann & Valentin)                          :done, ui2, 2025-11-28, 1d
+    ShoppingList view + Home fixes (Yohann & Valentin)               :done, ui3, 2025-11-28, 2d
+    Recipes UI rework to match wireframe (Yohann & Valentin)         :done, ui4, 2025-11-28, 2d
+    Home responsiveness + login view prep (Yohann & Valentin)        :done, ui5, 2025-11-29, 2d
 
-    section Documentation & Quality
-    Tests (frontend + backend)                    :tests_all, 2025-11-21, 14d
-    Technical documentation PDF                   :doc_tech, 2025-11-28, 14d
-    User documentation + README                   :doc_user, 2025-12-01, 11d
+    section Image upload & forms
+    Ingredient image upload + management update (Matthieu)           :done, img1, 2025-11-28, 2d
+    RecipeForm component + validation/logging (Matthieu)             :done, img2, 2025-11-28, 2d
+    Multiple image uploads + form enhancements (Matthieu)            :done, img3, 2025-11-28, 2d
+    Cleanup unused images + schema update (Matthieu)                 :done, img4, 2025-11-28, 1d
 
-    section Future Features
-    Weekly auto-generated shopping list           :future_list, 2025-12-15, 14d
-    Diet filters                                  :future_filters, 2025-12-29, 14d
-    Recipe rating and comments                    :future_rating, 2026-01-12, 14d
-    Recommendation system                         :future_reco, 2026-01-26, 21d
+    section Authentication & security
+    JWT authentication + register/login routes + LoginPopup (Matthieu) :done, a1, 2025-12-05, 3d
+    Role-based access control (Matthieu)                             :done, a2, 2025-12-11, 2d
 
+    section Preferences (business logic)
+    Preferences tables + localStorage refactor (Matthieu)            :done, p1, 2025-12-10, 2d
+    Preferences routes/services + UI sync (Matthieu)                 :done, p2, 2025-12-11, 1d
+    General improvements / refactoring (Yohann & Valentin)           :done, p3, 2025-12-11, 1d
+
+    section Meal planning (Connects / Meals)
+    Planning routes (connects + meals) backend (Yohann & Valentin)   :done, plan1, 2025-12-11, 1d
+    Meals API endpoint + frontend integration (Matthieu)             :done, plan2, 2025-12-12, 1d
+    Planning modal styling & structure (Matthieu)                    :done, plan3, 2025-12-12, 1d
+    Planning UX polish + QA (Yohann & Valentin)                  :done, planX, 2025-12-12, 1d
+
+
+    section Integration & QA
+    Frontend ↔ Backend integration tests (Yohann & Valentin)     :done, qa1, 2025-12-06, 2d
+    Bugfixes + regression testing (Yohann & Valentin)            :done, qa2, 2025-12-09, 2d
