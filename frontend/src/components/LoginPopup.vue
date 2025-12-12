@@ -56,6 +56,9 @@ const login = async () => {
     form.value = { email: '', password: '', displayName: '' }
     
     console.log('Login successful:', data.user)
+    
+    // Reload the page to load user-specific data
+    window.location.reload()
   } catch (err) {
     console.error('Login failed:', err)
     errorMessage.value = err.message || 'Login failed'
@@ -81,6 +84,9 @@ const register = async () => {
     form.value = { email: '', password: '', displayName: '' }
     
     console.log('Registration successful:', data.user)
+    
+    // Reload the page to load user-specific data
+    window.location.reload()
   } catch (err) {
     console.error('Registration failed:', err)
     errorMessage.value = err.message || 'Registration failed'
@@ -93,6 +99,8 @@ const logout = () => {
   user.value = null
   showPopup.value = false
   console.log('Logged out')
+  // Reload the page to clear all user-specific data
+  window.location.reload()
 }
 
 // Fermer le popup si on clique en dehors

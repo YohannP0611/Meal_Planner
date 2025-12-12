@@ -73,6 +73,18 @@ onMounted(() => {
   }, 500)
 })
 
+// Check if current user can edit an ingredient
+const canEdit = (ingredient) => {
+  if (!currentUser.value) return false // Not logged in
+  if (currentUser.value.role === 'admin') return true // Admin can edit everything
+  if (!ingredient.IDAcc) return false // No owner, not editable by regular users
+  return currentUser.value.id === ingredient.IDAcc // Owner can edit
+}
+
+onUnmounted(() => {
+  if (authCheckInterval) clearInterval(authCheckInterval)
+})
+
 /* Returns an image based on the ingredient's name */
 const getImage = (name) => {
   try {
@@ -206,14 +218,6 @@ const closeForm = () => {
 
 const imagePreview = ref(null)
 
-// Check if current user can edit an ingredient
-const canEdit = (ingredient) => {
-  if (!currentUser.value) return false // Not logged in
-  if (currentUser.value.role === 'admin') return true // Admin can edit everything
-  if (!ingredient.IDAcc) return false // No owner, not editable by regular users
-  return currentUser.value.id === ingredient.IDAcc // Owner can edit
-}
-
 const handleFiles = async (files) => {
   if (!files || !files.length) return
   const file = files[0]
@@ -252,11 +256,11 @@ const submitForm = async () => {
       console.log("Updated ingredient:", form.value)
     }
 
+    // Refresh the list after saving
+    await loadIngredients()
+    
     showForm.value = false
     editingId.value = null
-    
-    // Refresh the list after saving to get fresh IDAcc values
-    await loadIngredients()
   } catch (err) {
     console.error("Error:", err)
     alert("Failed to save ingredient")
@@ -278,10 +282,6 @@ const deleteIngredient = async (id) => {
     alert("Failed to delete ingredient")
   }
 }
-
-onUnmounted(() => {
-  if (authCheckInterval) clearInterval(authCheckInterval)
-})
 </script>
 
 <template>
@@ -370,7 +370,7 @@ onUnmounted(() => {
         <p><strong>Carbs:</strong> {{ i.Carbs }} g</p>
         <p><strong>Protein:</strong> {{ i.Protein }} g</p>
 
-        <div class="CRUD" v-if="canEdit(i)">
+        <div v-if="canEdit(i)" class="CRUD">
           <button @click="deleteIngredient(i.IDIngredients)">🗑️</button>
           <button @click="openEditForm(i)">✏️</button>
         </div>
