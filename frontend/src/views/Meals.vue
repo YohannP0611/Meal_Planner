@@ -1,9 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { getMealsByDate, removeMealFromPlanning } from '@/services/planningService'
+import { getStoredUser } from '@/services/authService'
 
-// Fake current user id (must exist in Account.IDAcc)
-const currentUserId = 1
+const currentUser = ref(getStoredUser())
+const currentUserId = computed(() => currentUser.value?.id || 1)
 
 const today = new Date()
 const currentDate = ref(new Date())
@@ -127,7 +128,7 @@ async function loadMealsForDate (date) {
     const iso = formatDateForApi(date)
 
     const data = await getMealsByDate({
-      accountId: currentUserId,
+      accountId: currentUserId.value,
       dateMeal: iso
     })
 
@@ -168,7 +169,7 @@ async function deletePlannedMeal (mealType, recipe) {
     const iso = formatDateForApi(selectedDate.value)
 
     await removeMealFromPlanning({
-      accountId: currentUserId,
+      accountId: currentUserId.value,
       recipeId: recipe.IDRecipes,
       dateMeal: iso,
       mealType // 'breakfast' | 'lunch' | 'dinner'

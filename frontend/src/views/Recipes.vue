@@ -13,8 +13,6 @@ let authCheckInterval = null
 
 
 // --------- ADD TO MEALS (planning) ---------
-const currentUserId = 1
-
 const showPlanModal = ref(false)
 const selectedRecipeForPlanning = ref(null)
 const selectedMealDate = ref('')
@@ -53,7 +51,7 @@ async function savePlanning() {
     planningError.value = null
 
     await addMealToPlanning({
-      accountId: currentUserId,
+      accountId: currentUser.value?.id,
       recipeId: selectedRecipeForPlanning.value.IDRecipes,
       dateMeal: selectedMealDate.value, // format HTML : YYYY-MM-DD
       mealType: selectedMealType.value
@@ -83,13 +81,13 @@ const loadRecipes = async () => {
   try {
     recipes.value = await getRecipes()
     console.log('Loaded recipes:', recipes.value)
-    
+
     // Initialize liked and passed properties
     recipes.value.forEach(r => {
       r.liked = false
       r.passed = false
     })
-    
+
     // Load current user and preferences if logged in
     if (checkIsLoggedIn()) {
       currentUser.value = getStoredUser()
@@ -108,7 +106,7 @@ const loadPreferences = async () => {
     prefs.forEach(p => {
       preferences.value[p.IDRecipes] = p.Status
     })
-    
+
     // Apply preferences to recipes
     recipes.value.forEach(r => {
       const status = preferences.value[r.IDRecipes]
@@ -122,7 +120,7 @@ const loadPreferences = async () => {
 
 onMounted(() => {
   loadRecipes()
-  
+
   // Check for login/logout changes periodically
   authCheckInterval = setInterval(() => {
     const user = getStoredUser()
@@ -157,7 +155,7 @@ const likeToggle = async (item) => {
     console.error('Failed to update preference', err)
     alert('Failed to update preference')
   }
-} 
+}
 
 // toggle pass for ONE recipe
 const passToggle = async (item) => {
@@ -192,7 +190,7 @@ const sortBy = ref('time') // 'time' | 'liked' | 'cost'
 const sortedRecipes = computed(() => {
   const list = Array.isArray(recipes) ? recipes : recipes.value
   if (!list || list.length === 0) return []
-  
+
   const arr = [...list]
 
   if (sortBy.value === 'liked') {
@@ -269,25 +267,13 @@ onUnmounted(() => {
 
     <div class="recipes-toolbar">
       <div class="recipes-filters">
-        <button
-          class="filter-pill"
-          :class="{ active: sortBy === 'time' }"
-          @click="sortBy = 'time'"
-        >
+        <button class="filter-pill" :class="{ active: sortBy === 'time' }" @click="sortBy = 'time'">
           Time
         </button>
-        <button
-          class="filter-pill"
-          :class="{ active: sortBy === 'liked' }"
-          @click="sortBy = 'liked'"
-        >
+        <button class="filter-pill" :class="{ active: sortBy === 'liked' }" @click="sortBy = 'liked'">
           Liked
         </button>
-        <button
-          class="filter-pill"
-          :class="{ active: sortBy === 'cost' }"
-          @click="sortBy = 'cost'"
-        >
+        <button class="filter-pill" :class="{ active: sortBy === 'cost' }" @click="sortBy = 'cost'">
           Cost
         </button>
         <button class="filter-pill disabled">...</button>
@@ -333,35 +319,34 @@ onUnmounted(() => {
 
     <!-- CARTES (wireframe + tes images) -->
     <div class="grid">
-      <div class="card recipe-card":class="{ passed: r.passed, liked: r.liked }" v-for="r in sortedRecipes" :key="r.IDRecipes">
+      <div class="card" :class="{ passed: r.passed, liked: r.liked }" v-for="r in sortedRecipes"
+        :key="r.IDRecipes">
         <div class="card-header">
-          <button 
-            @click="passToggle(r)"
-            :class="{ active: r.passed }"
-          >
+          <button @click="passToggle(r)" :class="{ active: r.passed }">
             x
           </button>
 
           <h3>{{ r.Title }}</h3>
 
-          <button 
-            @click="likeToggle(r)" 
-            :class="{ active: r.liked }"
-          >
+          <button @click="likeToggle(r)" :class="{ active: r.liked }">
             ♡
           </button>
         </div>
         <!-- use illustration URL from backend /uploads, fallback to logo on error -->
-        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')" style="display:block; margin:0 auto;" />
+        <img :src="getRecipeImageUrl(r)" :alt="r.Title" @error="(e) => e.target.src = require('@/assets/MPlogo.png')"/>
 
         <p><strong>Preparation time:</strong> {{ r.PrepTime }}</p>
         <p><strong>Cooking time:</strong> {{ r.CookTime }}</p>
         <p><strong>Difficulty:</strong> {{ r.Difficulty }}</p>
 
-        <div class="CRUD" v-if="canEdit(r)">
-          <button @click="deleteRecipe(r.IDRecipes)">🗑️</button>
-          <button @click="openEditForm(r)">✏️</button>
-          <button class="plan-btn" @click="openPlanningModal(r)">🗓️</button>
+        <!-- Action buttons -->
+        <div v-if="currentUser || canEdit(r)" class="CRUD">
+          <!-- Planning button for all logged-in users -->
+          <button v-if="currentUser" class="plan-btn" @click="openPlanningModal(r)">🗓️</button>
+
+          <!-- Edit/Delete buttons only for owner or admin -->
+          <button v-if="canEdit(r)" @click="deleteRecipe(r.IDRecipes)">🗑️</button>
+          <button v-if="canEdit(r)" @click="openEditForm(r)">✏️</button>
         </div>
       </div>
     </div>
