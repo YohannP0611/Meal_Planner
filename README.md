@@ -9,9 +9,9 @@
 
 ## Overview
 
-Meal Planner is a web application developed as part of a school project.  
-Its purpose is to help users store their recipes, organize them into weekly meal plans, and manage the relationships between ingredients, recipes, and shops.  
-The project focuses on database modeling, entity relationships, and a simple interface for demonstration purposes.
+**Meal Planner** is a full-stack web application that allows users to store recipes, organize them into weekly meal plans, and manage the relationships between ingredients, recipes, and shops.
+
+Built with a **Vue 3** frontend and a **Node.js / Express** REST API backed by a **MySQL** relational database, the project demonstrates end-to-end web development: authentication with JWT, role-based access control, image upload, and a responsive single-page interface.
 
 ---
 
@@ -53,22 +53,108 @@ The project focuses on database modeling, entity relationships, and a simple int
 
 ## Technologies Used
 
-- **Languages:** SQL, HTML, CSS, JavaScript (to be extended)  
-- **Database:** Relational database model using connector tables  
-- **Tools:** Visual Paradigm, SQL editor, Git, GitHub  
+### Frontend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [Vue.js](https://vuejs.org/) | 3.x | Progressive JavaScript UI framework |
+| [Vue Router](https://router.vuejs.org/) | 4.x | Client-side routing |
+| [Axios](https://axios-http.com/) | 1.x | HTTP client for API requests |
+| [Vue CLI](https://cli.vuejs.org/) | 5.x | Project scaffolding and dev server |
+
+### Backend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [Node.js](https://nodejs.org/) | — | JavaScript runtime |
+| [Express](https://expressjs.com/) | 5.x | HTTP server and routing framework |
+| [mysql2](https://github.com/sidorares/node-mysql2) | 3.x | MySQL database driver |
+| [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) | 9.x | JWT-based authentication |
+| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | 6.x | Password hashing |
+| [multer](https://github.com/expressjs/multer) | 1.x | Multipart file upload handling |
+| [dotenv](https://github.com/motdotla/dotenv) | 17.x | Environment variable management |
+| [cors](https://github.com/expressjs/cors) | 2.x | Cross-Origin Resource Sharing middleware |
+| [Axios](https://axios-http.com/) | 1.x | HTTP client for server-side calls |
+
+### Database & Tooling
+| Tool | Purpose |
+|------|---------|
+| MySQL | Relational database |
+| Visual Paradigm | UML and database modeling |
+| Git / GitHub | Version control and collaboration |
 
 ---
 
 ## Repository Structure
 
+```
 Meal_Planner/
+├── backend/                # Node.js / Express API
+│   ├── models/             # Database models
+│   ├── routes/             # API route definitions
+│   ├── public/uploads/     # Uploaded images
+│   ├── server.js           # Express entry point
+│   └── package.json
+├── frontend/               # Vue 3 single-page application
+│   ├── src/
+│   │   ├── assets/         # Static assets (images, icons)
+│   │   ├── components/     # Reusable Vue components
+│   │   ├── views/          # Page-level Vue components
+│   │   ├── router/         # Vue Router configuration
+│   │   ├── services/       # API service modules (Axios)
+│   │   └── App.vue         # Root component
+│   └── package.json
+├── database/               # SQL scripts and schema exports
+├── docs/                   # UML diagrams and project documentation
+└── README.md
+```
 
-├── .idea/ # Project configuration files
+---
 
-├── ProjectFiles/ # SQL scripts and database exports
+## Getting Started
 
-├── README.md # Project documentation
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [MySQL](https://www.mysql.com/) (v8+)
 
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YohannP0611/Meal_Planner.git
+   cd Meal_Planner
+   ```
+
+2. **Set up the database**  
+   Run the SQL scripts located in `database/` to create the schema and seed data.
+
+3. **Configure the backend**  
+   Create a `.env` file in the `backend/` directory:
+   ```env
+   DB_HOST=localhost
+   DB_USER=your_user
+   DB_PASSWORD=your_password
+   DB_NAME=meal_planner
+   JWT_SECRET=your_jwt_secret
+   ```
+
+4. **Start the backend**
+   ```bash
+   cd backend
+   npm install
+   npm start
+   ```
+
+5. **Start the frontend**
+   ```bash
+   cd frontend
+   npm install
+   npm run serve
+   ```
+
+The frontend will be available at `http://localhost:8080` and the API at `http://localhost:3000`.
+
+---
+
+## Project Timeline
 
 ```mermaid
 gantt
